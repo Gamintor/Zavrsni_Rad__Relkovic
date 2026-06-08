@@ -1,0 +1,1 @@
+Igra kviza s izazovima kombiniranjem pitanja s vizualnim izazovima ili mini-puzzle zadacima
