@@ -1,1 +1,2 @@
-Igra kviza s izazovima kombiniranjem pitanja s vizualnim izazovima ili mini-puzzle zadacima
+### Igra kviza s izazovima kombiniranjem pitanja s vizualnim izazovima ili mini-puzzle zadacima
+Ova igra kviza kombinira klasična pitanja (npr. višestruki izbor, točno/netočno) s vizualnim izazovima i interaktivnim mini-puzzle zadacima. Cilj igre je ponuditi dinamično i zabavno iskustvo koje testira ne samo znanje, već i vještine poput logičkog razmišljanja, percepcije i refleksa. Igra može biti pojedinačna ili multiplayer, s mogućnošću natjecanja u realnom vremenu.
