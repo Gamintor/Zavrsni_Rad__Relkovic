@@ -95,6 +95,7 @@ model User {
     email         String?   @unique
     emailVerified DateTime?
     image         String?
+    password      String?
     role          Role      @default(PLAYER)
 
     accounts Account[]
@@ -189,8 +190,8 @@ model GameSession {
     userId String
     user   User   @relation(fields: [userId], references: [id])
 
-    quizId String?
-    quiz   Quiz?   @relation(fields: [quizId], references: [id])
+    quizId String
+    quiz   Quiz   @relation(fields: [quizId], references: [id])
 
     answers AnswerRecord[]
 }

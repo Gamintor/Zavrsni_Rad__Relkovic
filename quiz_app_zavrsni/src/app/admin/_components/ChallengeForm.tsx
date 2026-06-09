@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "~/trpc/react";
 import {
   ChallengeType,
@@ -295,35 +295,89 @@ function FieldsTI({ state, set }: { state: TIState; set: (s: TIState) => void })
   );
 }
 
-function FieldsVC({ state, set }: { state: VCState; set: (s: VCState) => void }) {
+function FieldsVC({
+  state,
+  set,
+  mediaUrl,
+}: {
+  state: VCState;
+  set: (s: VCState) => void;
+  mediaUrl?: string;
+}) {
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  function handleImageClick(e: React.MouseEvent<HTMLDivElement>) {
+    if (!imgRef.current) return;
+    const rect = imgRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+    set({ ...state, x: parseFloat(x.toFixed(3)), y: parseFloat(y.toFixed(3)) });
+  }
+
   return (
-    <div className="space-y-3">
-      <p className="text-sm text-white/70">
-        Slika se postavlja u polje "URL slike" iznad. Koordinate su relativne
-        (0–1).
-      </p>
-      {(
-        [
-          { key: "x", label: "Cilj X (0–1)" },
-          { key: "y", label: "Cilj Y (0–1)" },
-          { key: "tolerance", label: "Tolerancija (0–1)" },
-        ] as { key: keyof VCState; label: string }[]
-      ).map(({ key, label }) => (
-        <label key={key} className="block">
-          <span className="mb-1 block text-sm text-white/70">{label}</span>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            max="1"
-            value={state[key]}
-            onChange={(e) =>
-              set({ ...state, [key]: parseFloat(e.target.value) })
-            }
-            className="w-32 rounded bg-white/10 px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
-          />
-        </label>
-      ))}
+    <div className="space-y-4">
+      {/* Klikabilni image preview za postavljanje koordinata */}
+      {mediaUrl ? (
+        <div className="space-y-2">
+          <p className="text-sm text-white/70">
+            Klikni na sliku da postaviš ciljnu točku (X, Y se automatski popune):
+          </p>
+          <div
+            className="relative cursor-crosshair overflow-hidden rounded-lg"
+            onClick={handleImageClick}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              ref={imgRef}
+              src={mediaUrl}
+              alt="Klikni za postavljanje cilja"
+              className="w-full select-none rounded-lg"
+              draggable={false}
+            />
+            {/* Marker trenutne pozicije */}
+            <div
+              className="pointer-events-none absolute"
+              style={{
+                left: `${state.x * 100}%`,
+                top: `${state.y * 100}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <div className="h-6 w-6 rounded-full border-2 border-white bg-[hsl(280,100%,70%)]/80" />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <p className="text-sm text-white/50">
+          Unesi URL slike iznad pa klikni na sliku za postavljanje cilja, ili ručno unesi koordinate.
+        </p>
+      )}
+
+      {/* Ručni unos koordinata */}
+      <div className="flex flex-wrap gap-4">
+        {(
+          [
+            { key: "x", label: "Cilj X (0–1)" },
+            { key: "y", label: "Cilj Y (0–1)" },
+            { key: "tolerance", label: "Tolerancija (0–1)" },
+          ] as { key: keyof VCState; label: string }[]
+        ).map(({ key, label }) => (
+          <label key={key} className="block">
+            <span className="mb-1 block text-sm text-white/70">{label}</span>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              max="1"
+              value={state[key]}
+              onChange={(e) =>
+                set({ ...state, [key]: parseFloat(e.target.value) })
+              }
+              className="w-28 rounded bg-white/10 px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+            />
+          </label>
+        ))}
+      </div>
     </div>
   );
 }
@@ -779,6 +833,7 @@ export default function ChallengeForm({
           <FieldsVC
             state={typeState as VCState}
             set={(s) => setTypeState(s)}
+            mediaUrl={mediaUrl || undefined}
           />
         )}
         {type === "SPOT_DIFFERENCE" && (
