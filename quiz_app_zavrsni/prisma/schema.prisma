@@ -1,0 +1,246 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "../generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// ─── Enumi ────────────────────────────────────────────────────────────────────
+
+enum Role {
+    PLAYER
+    ADMIN
+}
+
+enum ChallengeType {
+    MULTIPLE_CHOICE
+    TRUE_FALSE
+    TEXT_INPUT
+    VISUAL_CLICK
+    SPOT_DIFFERENCE
+    IMAGE_ORDER
+    PUZZLE
+    MEMORY
+    SEQUENCE
+}
+
+enum Difficulty {
+    EASY
+    MEDIUM
+    HARD
+}
+
+enum GameMode {
+    SOLO
+    MULTIPLAYER
+}
+
+enum SessionStatus {
+    IN_PROGRESS
+    FINISHED
+    ABANDONED
+}
+
+enum RoomStatus {
+    LOBBY
+    IN_PROGRESS
+    FINISHED
+}
+
+// ─── Auth.js modeli (ne mijenjati strukturu) ──────────────────────────────────
+
+model Account {
+    id                       String  @id @default(cuid())
+    userId                   String
+    type                     String
+    provider                 String
+    providerAccountId        String
+    refresh_token            String?
+    access_token             String?
+    expires_at               Int?
+    token_type               String?
+    scope                    String?
+    id_token                 String?
+    session_state            String?
+    refresh_token_expires_in Int?
+    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
+
+// ─── User (proširen) ──────────────────────────────────────────────────────────
+
+model User {
+    id            String    @id @default(cuid())
+    name          String?
+    email         String?   @unique
+    emailVerified DateTime?
+    image         String?
+    role          Role      @default(PLAYER)
+
+    accounts Account[]
+    sessions Session[]
+
+    createdChallenges Challenge[]   @relation("ChallengeCreatedBy")
+    createdQuizzes    Quiz[]        @relation("QuizCreatedBy")
+    gameSessions      GameSession[]
+    answers           AnswerRecord[]
+    roomsHosted       Room[]        @relation("RoomHost")
+    roomPlayers       RoomPlayer[]
+}
+
+// ─── Sadržaj ──────────────────────────────────────────────────────────────────
+
+model Category {
+    id          String   @id @default(cuid())
+    name        String
+    slug        String   @unique
+    description String?
+    createdAt   DateTime @default(now())
+
+    challenges Challenge[]
+    quizzes    Quiz[]
+}
+
+model Challenge {
+    id            String        @id @default(cuid())
+    type          ChallengeType
+    prompt        String
+    content       Json
+    correctAnswer Json
+    mediaUrl      String?
+    difficulty    Difficulty
+    basePoints    Int
+    timeLimitSec  Int
+    createdAt     DateTime      @default(now())
+    updatedAt     DateTime      @updatedAt
+
+    categoryId  String
+    category    Category @relation(fields: [categoryId], references: [id])
+
+    createdById String
+    createdBy   User   @relation("ChallengeCreatedBy", fields: [createdById], references: [id])
+
+    quizChallenges QuizChallenge[]
+    answers        AnswerRecord[]
+}
+
+model Quiz {
+    id          String   @id @default(cuid())
+    title       String
+    description String?
+    isPublished Boolean  @default(false)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    categoryId String?
+    category   Category? @relation(fields: [categoryId], references: [id])
+
+    createdById String
+    createdBy   User   @relation("QuizCreatedBy", fields: [createdById], references: [id])
+
+    quizChallenges QuizChallenge[]
+    gameSessions   GameSession[]
+    rooms          Room[]
+}
+
+model QuizChallenge {
+    id    String @id @default(cuid())
+    order Int
+
+    quizId String
+    quiz   Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+    challengeId String
+    challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+    @@unique([quizId, challengeId])
+}
+
+// ─── Igra ─────────────────────────────────────────────────────────────────────
+
+model GameSession {
+    id         String        @id @default(cuid())
+    mode       GameMode
+    totalScore Int           @default(0)
+    status     SessionStatus @default(IN_PROGRESS)
+    startedAt  DateTime      @default(now())
+    finishedAt DateTime?
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
+
+    quizId String?
+    quiz   Quiz?   @relation(fields: [quizId], references: [id])
+
+    answers AnswerRecord[]
+}
+
+model AnswerRecord {
+    id          String   @id @default(cuid())
+    givenAnswer Json
+    isCorrect   Boolean
+    pointsAwarded Int
+    timeTakenMs Int
+    answeredAt  DateTime @default(now())
+
+    gameSessionId String
+    gameSession   GameSession @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
+
+    challengeId String
+    challenge   Challenge @relation(fields: [challengeId], references: [id])
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
+}
+
+// ─── Multiplayer ──────────────────────────────────────────────────────────────
+
+model Room {
+    id         String     @id @default(cuid())
+    code       String     @unique
+    status     RoomStatus @default(LOBBY)
+    createdAt  DateTime   @default(now())
+    finishedAt DateTime?
+
+    hostId String
+    host   User   @relation("RoomHost", fields: [hostId], references: [id])
+
+    quizId String
+    quiz   Quiz   @relation(fields: [quizId], references: [id])
+
+    players RoomPlayer[]
+}
+
+model RoomPlayer {
+    id         String   @id @default(cuid())
+    finalScore Int      @default(0)
+    joinedAt   DateTime @default(now())
+
+    roomId String
+    room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
+
+    @@unique([roomId, userId])
+}
