@@ -7,6 +7,7 @@ import {
   ChallengeType,
   Difficulty,
 } from "../../../../generated/prisma";
+import { ImageUpload } from "./ImageUpload";
 
 // ─── Tip-specifični state ─────────────────────────────────────────────────────
 
@@ -386,17 +387,13 @@ function FieldsSD({ state, set }: { state: SDState; set: (s: SDState) => void })
   return (
     <div className="space-y-3">
       <p className="text-sm text-white/70">
-        Slika A dolazi iz polja "URL slike" iznad.
+        Slika A dolazi iz upload polja "Slika / medij" iznad.
       </p>
-      <label className="block">
-        <span className="mb-1 block text-sm text-white/70">URL slike B</span>
-        <input
-          value={state.imageB}
-          onChange={(e) => set({ ...state, imageB: e.target.value })}
-          placeholder="https://..."
-          className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
-        />
-      </label>
+      <ImageUpload
+        label="Slika B"
+        value={state.imageB}
+        onChange={(url) => set({ ...state, imageB: url })}
+      />
       <p className="text-sm text-white/70">
         Razlike (x, y, radius — sve 0–1):
       </p>
@@ -451,30 +448,32 @@ function FieldsSD({ state, set }: { state: SDState; set: (s: SDState) => void })
 
 function FieldsIO({ state, set }: { state: IOState; set: (s: IOState) => void }) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <p className="text-sm text-white/70">
         Slike u točnom redoslijedu — igrač ih dobiva pomiješane.
       </p>
       {state.images.map((img, i) => (
-        <div key={i} className="flex items-center gap-2">
-          <span className="w-6 text-center text-sm text-white/40">{i + 1}.</span>
-          <input
-            value={img}
-            onChange={(e) => {
-              const images = [...state.images];
-              images[i] = e.target.value;
-              set({ images });
-            }}
-            placeholder="https://..."
-            className="flex-1 rounded bg-white/10 px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
-          />
+        <div key={i} className="flex items-start gap-3 rounded-lg border border-white/10 p-3">
+          <span className="mt-1 w-5 flex-shrink-0 text-center text-sm font-bold text-white/40">
+            {i + 1}.
+          </span>
+          <div className="flex-1">
+            <ImageUpload
+              value={img}
+              onChange={(url) => {
+                const images = [...state.images];
+                images[i] = url;
+                set({ images });
+              }}
+            />
+          </div>
           {state.images.length > 2 && (
             <button
               type="button"
               onClick={() =>
                 set({ images: state.images.filter((_, j) => j !== i) })
               }
-              className="text-red-400 hover:text-red-300"
+              className="mt-1 text-red-400 hover:text-red-300"
             >
               ✕
             </button>
@@ -734,17 +733,11 @@ export default function ChallengeForm({
         />
       </label>
 
-      <label className="block">
-        <span className="mb-1 block text-sm text-white/70">
-          URL slike / medija (opcionalno)
-        </span>
-        <input
-          value={mediaUrl}
-          onChange={(e) => setMediaUrl(e.target.value)}
-          placeholder="https://..."
-          className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
-        />
-      </label>
+      <ImageUpload
+        label="Slika / medij (opcionalno — koriste VISUAL_CLICK, PUZZLE, SPOT_DIFFERENCE-A, IMAGE/MULTIPLE_CHOICE itd.)"
+        value={mediaUrl}
+        onChange={setMediaUrl}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <label className="block">

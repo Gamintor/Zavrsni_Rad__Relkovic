@@ -5,6 +5,14 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  images: {
+    remotePatterns: [
+      // UploadThing CDN (utfs.io — klasični, ufs.sh — novi regionalni)
+      { hostname: "utfs.io" },
+      { protocol: "https", hostname: "*.ufs.sh" },
+    ],
+  },
+};
 
 export default config;
