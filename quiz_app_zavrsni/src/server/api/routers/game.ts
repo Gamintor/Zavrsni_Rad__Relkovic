@@ -6,100 +6,17 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { ChallengeType, Difficulty } from "../../../../generated/prisma";
 import type { Prisma } from "../../../../generated/prisma";
+import {
+  validateAnswer,
+  calculateScore,
+  calcStreak,
+} from "~/server/game/scoring";
 
 // Ukloni correctAnswer prije slanja klijentu — server je autoritativan
 function sanitize<T extends { correctAnswer: unknown }>(ch: T) {
   const { correctAnswer: _stripped, ...safe } = ch;
   return safe;
-}
-
-// Validacija odgovora — radi samo server, klijent ne zna correctAnswer
-function validateAnswer(
-  type: ChallengeType,
-  correct: Prisma.JsonValue,
-  given: Record<string, unknown>,
-): boolean {
-  const ca = correct as Record<string, unknown>;
-  switch (type) {
-    case "MULTIPLE_CHOICE": {
-      const cs = new Set((ca.indices as number[]) ?? []);
-      const gs = new Set((given.indices as number[]) ?? []);
-      if (cs.size !== gs.size) return false;
-      for (const v of cs) if (!gs.has(v)) return false;
-      return true;
-    }
-    case "TRUE_FALSE":
-      return (given.value as boolean) === (ca.value as boolean);
-    case "TEXT_INPUT": {
-      const ct = ((ca.text as string) ?? "").trim();
-      const gt = ((given.text as string) ?? "").trim();
-      return ca.caseSensitive ? ct === gt : ct.toLowerCase() === gt.toLowerCase();
-    }
-    case "VISUAL_CLICK": {
-      const dx = (given.x as number) - (ca.x as number);
-      const dy = (given.y as number) - (ca.y as number);
-      return Math.sqrt(dx * dx + dy * dy) <= (ca.tolerance as number);
-    }
-    case "SPOT_DIFFERENCE": {
-      const required =
-        (ca.differences as { x: number; y: number; radius: number }[]) ?? [];
-      const found = (given.found as { x: number; y: number }[]) ?? [];
-      return required.every((d) =>
-        found.some((f) => {
-          const dx = f.x - d.x,
-            dy = f.y - d.y;
-          return Math.sqrt(dx * dx + dy * dy) <= d.radius;
-        }),
-      );
-    }
-    case "IMAGE_ORDER":
-    case "SEQUENCE": {
-      const co = ca.order as number[];
-      const go = given.order as number[];
-      return (
-        Array.isArray(co) &&
-        Array.isArray(go) &&
-        co.length === go.length &&
-        co.every((v, i) => go[i] === v)
-      );
-    }
-    case "PUZZLE":
-      return !!(given.solved);
-    case "MEMORY":
-      return !!(given.allMatched);
-    default: {
-      const _e: never = type;
-      return false;
-    }
-  }
-}
-
-// Bodovi = bazni + vremenski bonus (do 50%) × streak multiplikator × težina
-function calcPoints(
-  base: number,
-  limitSec: number,
-  difficulty: Difficulty,
-  takenMs: number,
-  streak: number,
-): number {
-  const timeRatio = Math.max(0, 1 - takenMs / (limitSec * 1000));
-  const timeBonus = Math.floor(base * timeRatio * 0.5);
-  const streakMult = Math.min(1 + streak * 0.1, 2.0); // max 2× pri 10+ streak
-  const diffMult =
-    difficulty === "EASY" ? 1 : difficulty === "MEDIUM" ? 1.25 : 1.5;
-  return Math.floor((base + timeBonus) * streakMult * diffMult);
-}
-
-// Broji uzastopne točne odgovore (odgovori poredani desc)
-function calcStreak(answers: { isCorrect: boolean }[]) {
-  let n = 0;
-  for (const a of answers) {
-    if (a.isCorrect) n++;
-    else break;
-  }
-  return n;
 }
 
 // ─── Router ───────────────────────────────────────────────────────────────────
@@ -269,7 +186,13 @@ export const gameRouter = createTRPCRouter({
       // Vremenski limit — ne vjeruj klijentu da je brži od mogućeg
       const safeTakenMs = Math.min(input.timeTakenMs, ch.timeLimitSec * 1000);
       const pointsAwarded = isCorrect
-        ? calcPoints(ch.basePoints, ch.timeLimitSec, ch.difficulty, safeTakenMs, streak)
+        ? calculateScore({
+            basePoints: ch.basePoints,
+            timeLimitSec: ch.timeLimitSec,
+            difficulty: ch.difficulty,
+            timeTakenMs: safeTakenMs,
+            streak,
+          })
         : 0;
 
       await ctx.db.$transaction([

@@ -24,7 +24,13 @@ export default async function Home() {
                 href="/play"
                 className="rounded-full bg-[hsl(280,100%,70%)] px-8 py-3 font-semibold text-black transition hover:opacity-90"
               >
-                Igraj
+                Solo igra
+              </Link>
+              <Link
+                href="/multiplayer/create"
+                className="rounded-full bg-white/10 px-8 py-3 font-semibold transition hover:bg-white/20"
+              >
+                Multiplayer
               </Link>
               <Link
                 href="/leaderboard"
