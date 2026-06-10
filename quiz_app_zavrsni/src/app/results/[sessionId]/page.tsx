@@ -12,6 +12,12 @@ export default function ResultsPage({
   const { sessionId } = use(params);
   const { data: session, isLoading } = api.game.getResults.useQuery({ sessionId });
 
+  // Ljestvica za ovaj kviz
+  const { data: leaderboard } = api.leaderboard.byQuiz.useQuery(
+    {quizId: session?.quiz.id ?? "", limit: 10 },
+    {enabled: !!session?.quiz.id}
+  );
+
   if (isLoading)
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#15162c] text-white">
@@ -30,11 +36,6 @@ export default function ResultsPage({
   const total = session.answers.length;
   const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
 
-  // Ljestvica za ovaj kviz
-  const { data: leaderboard } = api.leaderboard.byQuiz.useQuery({
-    quizId: session.quiz.id,
-    limit: 10,
-  });
 
   return (
     <main className="min-h-screen bg-[#15162c] text-white">
