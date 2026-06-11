@@ -36,6 +36,8 @@
   --r-sm: 12px;
   --r-md: 16px;
   --r-lg: 22px;
+  --r-card: 22px;
+  --r-tile: 16px;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   --shadow-card:  0 18px 44px rgba(14, 28, 48, 0.4);
   --shadow-hover: 0 16px 34px rgba(14, 28, 48, 0.55);
@@ -116,6 +118,15 @@ body {
   }
   .input-field::placeholder { color: var(--text-mut); }
   .input-field:focus { border-color: var(--powder); }
+  .input-field option {
+    background: var(--navy-deep);
+    color: var(--cream);
+  }
+
+  /* UploadThing button border */
+  [data-ut-element="button"] {
+    border: 1px solid var(--border-hi) !important;
+  }
 
   /* CTA gumb */
   .btn-primary {

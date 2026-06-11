@@ -31,12 +31,16 @@ export default function AdminNav() {
             <li key={href}>
               <Link
                 href={href}
-                className="block rounded-[var(--r-tile)] px-3 py-2 text-sm transition"
+                className={[
+                  "block rounded-[var(--r-tile)] px-3 py-2 text-sm transition border-l-2",
+                  active
+                    ? "font-semibold"
+                    : "font-normal hover:bg-[var(--glass)] hover:text-[var(--cream)]",
+                ].join(" ")}
                 style={{
-                  background: active ? "var(--glass-strong)" : "transparent",
+                  background: active ? "var(--glass-strong)" : undefined,
                   color: active ? "var(--cream)" : "var(--text-mut)",
-                  fontWeight: active ? "600" : "400",
-                  borderLeft: active ? "2px solid var(--powder)" : "2px solid transparent",
+                  borderLeftColor: active ? "var(--powder)" : "transparent",
                 }}
               >
                 {label}
@@ -48,7 +52,7 @@ export default function AdminNav() {
       <div className="mt-auto pt-4" style={{ borderTop: "1px solid var(--border-soft)" }}>
         <Link
           href="/"
-          className="block rounded-[var(--r-tile)] px-3 py-2 text-sm transition"
+          className="block rounded-[var(--r-tile)] px-3 py-2 text-sm transition hover:bg-[var(--glass)] hover:text-[var(--cream)]"
           style={{ color: "var(--text-mut)" }}
         >
           ← Natrag na app

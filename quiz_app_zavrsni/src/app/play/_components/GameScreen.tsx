@@ -283,16 +283,23 @@ export default function GameScreen({ sessionId }: { sessionId: string }) {
           {Array.from({ length: totalChallenges }).map((_, i) => (
             <div
               key={i}
-              className="h-1.5 rounded-full"
+              className="relative h-1.5 overflow-hidden rounded-full"
               style={{
                 background:
-                  i < challengeIndex
-                    ? "var(--powder)"
-                    : i === challengeIndex
-                    ? "linear-gradient(90deg, var(--powder) 60%, rgba(168,218,220,0.2) 60%)"
-                    : "var(--border-soft)",
+                  i < challengeIndex ? "var(--powder)" : "var(--border-soft)",
               }}
-            />
+            >
+              {i === challengeIndex && (
+                <div
+                  className="absolute inset-y-0 left-0 rounded-full"
+                  style={{
+                    width: isSubmitted ? "100%" : "0%",
+                    background: "var(--powder)",
+                    transition: isSubmitted ? "width 1.5s ease-out" : "none",
+                  }}
+                />
+              )}
+            </div>
           ))}
         </div>
 
