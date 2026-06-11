@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import type { ServerToClientEvents, ClientToServerEvents } from "~/server/socket/handler";
@@ -14,21 +15,32 @@ interface SocketContextValue {
 const SocketContext = createContext<SocketContextValue>({ socket: null, connected: false });
 
 export function SocketProvider({ children }: { children: React.ReactNode }) {
-  const socketRef = useRef<AppSocket | null>(null);
+  const { status } = useSession();
+  const [socket, setSocket] = useState<AppSocket | null>(null);
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    const s: AppSocket = io({ path: "/socket.io", transports: ["websocket", "polling"] });
-    socketRef.current = s;
+    if (status !== "authenticated") return; // spoji se TEK kad postoji sesija
 
+    const s: AppSocket = io({
+      path: "/socket.io",
+      transports: ["websocket", "polling"],
+      withCredentials: true,
+    });
     s.on("connect", () => setConnected(true));
     s.on("disconnect", () => setConnected(false));
 
-    return () => { s.disconnect(); };
-  }, []);
+    setSocket(s);
+
+    return () => { 
+      s.disconnect();
+      setSocket(null);
+      setConnected(false);
+    };
+  }, [status]);
 
   return (
-    <SocketContext.Provider value={{ socket: socketRef.current, connected }}>
+    <SocketContext.Provider value={{ socket, connected }}>
       {children}
     </SocketContext.Provider>
   );
