@@ -36,15 +36,34 @@ io.use(async (socket, next) => {
         .map(([k, ...v]) => [k!.trim(), decodeURIComponent(v.join("="))]),
     );
 
-    const cookieName = dev ? "authjs.session-token" : "__Secure-authjs.session-token";
-    const token = cookies[cookieName];
+    // const cookieName = dev ? "authjs.session-token" : "__Secure-authjs.session-token";
+    // const token = cookies[cookieName];
+    const candidates = ["__Secure-authjs.session-token", "authjs.session-token"];
+
+    let cookieName = candidates.find((n) => cookies[n] !== undefined);
+    let token = cookieName ? cookies[cookieName] : undefined;
 
     if (!token) {
+      for (const base of candidates) {
+        const parts = Object.keys(cookies).filter((k) => k.startsWith(base + ".")).sort();
+        if (parts.length) {
+          cookieName = base;                       // salt MORA biti bazno ime, ne ".0"
+          token = parts.map((k) => cookies[k]).join("");
+          break;
+        }
+      }
+    }
+
+    if (!token || !cookieName) {
       next(new Error("Unauthorized: no session token"));
       return;
     }
 
-    const secret = process.env.AUTH_SECRET ?? "dev-secret";
+    const secret = process.env.AUTH_SECRET;
+    if (!secret) {
+      next(new Error("Server misconfig: AUTH_SECRET missing"));
+      return;
+    }
     const decoded = await decode({ token, secret, salt: cookieName });
 
     if (!decoded) {
