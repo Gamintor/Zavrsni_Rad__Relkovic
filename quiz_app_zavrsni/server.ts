@@ -7,7 +7,9 @@ import { registerSocketHandlers } from "./src/server/socket/handler.js";
 import type { ServerToClientEvents, ClientToServerEvents, SocketData } from "./src/server/socket/handler.js";
 
 const dev = process.env.NODE_ENV !== "production";
-const port = parseInt(process.env.PORT ?? "3000", 10);
+// const port = parseInt(process.env.PORT ?? "3000", 10);
+const port = Number(process.env.PORT) || 3000;
+httpServer.listen(port, "0.0.0.0", () => { ... });
 
 const app = next({ dev });
 const handle = app.getRequestHandler();
