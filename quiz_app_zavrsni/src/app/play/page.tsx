@@ -38,8 +38,10 @@ export default function PlayPage() {
             >
               <div className="mb-4">
                 <h3 className="text-xl font-bold">{quiz.title}</h3>
-                {quiz.category && (
-                  <p className="mt-0.5 text-sm text-white/50">{quiz.category.name}</p>
+                {quiz.categories && quiz.categories.length > 0 && (
+                  <p className="mt-0.5 text-sm text-white/50">
+                    {quiz.categories.map((c) => c.name).join(", ")}
+                  </p>
                 )}
                 <p className="mt-3 text-sm text-white/60">
                   {quiz._count.quizChallenges} izazova

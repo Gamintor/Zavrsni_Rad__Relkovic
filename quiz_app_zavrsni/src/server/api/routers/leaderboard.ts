@@ -55,13 +55,16 @@ export const leaderboardRouter = createTRPCRouter({
       return bestPerUser(sessions, input.limit);
     }),
 
-  // Osobna povijest igranja
+  // Osobna povijest igranja (solo i multiplayer)
   myHistory: protectedProcedure.query(({ ctx }) =>
     ctx.db.gameSession.findMany({
-      where: { userId: ctx.session.user.id, mode: "SOLO" },
-      include: { quiz: { select: { title: true } } },
+      where: { userId: ctx.session.user.id, status: "FINISHED" },
+      include: {
+        quiz: { select: { title: true } },
+        answers: { select: { isCorrect: true } },
+      },
       orderBy: { startedAt: "desc" },
-      take: 20,
+      take: 30,
     }),
   ),
 });

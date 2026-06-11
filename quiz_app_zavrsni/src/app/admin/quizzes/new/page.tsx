@@ -9,12 +9,17 @@ export default function NewQuizPage() {
   const { data: categories } = api.content.category.list.useQuery();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [categoryId, setCategoryId] = useState("");
+  const [categoryIds, setCategoryIds] = useState<string[]>([]);
 
   const create = api.content.quiz.create.useMutation({
-    // Redirect to edit page so admin can add challenges right away
     onSuccess: (quiz) => router.push(`/admin/quizzes/${quiz.id}/edit`),
   });
+
+  function toggleCategory(id: string) {
+    setCategoryIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  }
 
   return (
     <div>
@@ -25,7 +30,7 @@ export default function NewQuizPage() {
           create.mutate({
             title,
             description: description || undefined,
-            categoryId: categoryId || undefined,
+            categoryIds: categoryIds.length > 0 ? categoryIds : undefined,
           });
         }}
         className="max-w-lg space-y-4"
@@ -51,23 +56,34 @@ export default function NewQuizPage() {
             className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
           />
         </label>
-        <label className="block">
-          <span className="mb-1 block text-sm text-white/70">
-            Kategorija (opcionalno)
-          </span>
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
-          >
-            <option value="">-- bez kategorije --</option>
-            {categories?.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <fieldset className="block">
+          <legend className="mb-2 text-sm text-white/70">
+            Kategorije (opcionalno, više je moguće)
+          </legend>
+          {categories && categories.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {categories.map((c) => {
+                const checked = categoryIds.includes(c.id);
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => toggleCategory(c.id)}
+                    className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                      checked
+                        ? "bg-[hsl(280,100%,70%)] text-black"
+                        : "bg-white/10 text-white/70 hover:bg-white/20"
+                    }`}
+                  >
+                    {c.name}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-white/40">Nema kategorija.</p>
+          )}
+        </fieldset>
         {create.error && (
           <p className="text-sm text-red-400">{create.error.message}</p>
         )}

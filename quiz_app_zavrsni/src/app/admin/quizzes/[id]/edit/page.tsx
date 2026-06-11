@@ -34,7 +34,7 @@ export default function EditQuizPage({
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [categoryId, setCategoryId] = useState("");
+  const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [challengeSearch, setChallengeSearch] = useState("");
   const [infoSaved, setInfoSaved] = useState(false);
 
@@ -43,9 +43,15 @@ export default function EditQuizPage({
     if (quiz) {
       setTitle(quiz.title);
       setDescription(quiz.description ?? "");
-      setCategoryId(quiz.categoryId ?? "");
+      setCategoryIds(quiz.categories.map((c) => c.id));
     }
   }, [quiz?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function toggleCategory(id: string) {
+    setCategoryIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  }
 
   const updateQuiz = api.content.quiz.update.useMutation({
     onSuccess: () => {
@@ -129,21 +135,34 @@ export default function EditQuizPage({
               className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
             />
           </label>
-          <label className="block">
-            <span className="mb-1 block text-sm text-white/70">Kategorija</span>
-            <select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
-            >
-              <option value="">-- bez kategorije --</option>
-              {categories?.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="block sm:col-span-2">
+            <span className="mb-2 block text-sm text-white/70">
+              Kategorije (više je moguće)
+            </span>
+            {categories && categories.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {categories.map((c) => {
+                  const checked = categoryIds.includes(c.id);
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => toggleCategory(c.id)}
+                      className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                        checked
+                          ? "bg-[hsl(280,100%,70%)] text-black"
+                          : "bg-white/10 text-white/70 hover:bg-white/20"
+                      }`}
+                    >
+                      {c.name}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-white/40">Nema kategorija.</p>
+            )}
+          </div>
         </div>
         <div className="mt-4 flex items-center gap-3">
           <button
@@ -152,7 +171,7 @@ export default function EditQuizPage({
                 id,
                 title,
                 description: description || null,
-                categoryId: categoryId || null,
+                categoryIds,
               })
             }
             disabled={updateQuiz.isPending}

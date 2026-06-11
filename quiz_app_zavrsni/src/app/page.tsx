@@ -38,6 +38,12 @@ export default async function Home() {
               >
                 Ljestvica
               </Link>
+              <Link
+                href="/profile"
+                className="rounded-full bg-white/10 px-8 py-3 font-semibold transition hover:bg-white/20"
+              >
+                Profil
+              </Link>
               {session.user.role === "ADMIN" && (
                 <Link
                   href="/admin"

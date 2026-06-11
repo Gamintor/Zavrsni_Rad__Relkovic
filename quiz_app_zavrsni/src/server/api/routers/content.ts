@@ -155,7 +155,7 @@ const quizRouter = createTRPCRouter({
   list: adminProcedure.query(({ ctx }) =>
     ctx.db.quiz.findMany({
       include: {
-        category: { select: { name: true } },
+        categories: { select: { name: true } },
         createdBy: { select: { name: true } },
         _count: { select: { quizChallenges: true } },
       },
@@ -169,7 +169,7 @@ const quizRouter = createTRPCRouter({
       const quiz = await ctx.db.quiz.findUnique({
         where: { id: input.id },
         include: {
-          category: { select: { id: true, name: true } },
+          categories: { select: { id: true, name: true } },
           quizChallenges: {
             include: {
               challenge: {
@@ -197,14 +197,21 @@ const quizRouter = createTRPCRouter({
       z.object({
         title: z.string().min(1).max(200),
         description: z.string().optional(),
-        categoryId: z.string().optional(),
+        categoryIds: z.array(z.string()).optional(),
       }),
     )
-    .mutation(({ ctx, input }) =>
-      ctx.db.quiz.create({
-        data: { ...input, createdById: ctx.session.user.id },
-      }),
-    ),
+    .mutation(({ ctx, input }) => {
+      const { categoryIds, ...rest } = input;
+      return ctx.db.quiz.create({
+        data: {
+          ...rest,
+          createdById: ctx.session.user.id,
+          ...(categoryIds?.length && {
+            categories: { connect: categoryIds.map((id) => ({ id })) },
+          }),
+        },
+      });
+    }),
 
   update: adminProcedure
     .input(
@@ -212,12 +219,20 @@ const quizRouter = createTRPCRouter({
         id: z.string(),
         title: z.string().min(1).max(200).optional(),
         description: z.string().nullable().optional(),
-        categoryId: z.string().nullable().optional(),
+        categoryIds: z.array(z.string()).optional(),
       }),
     )
     .mutation(({ ctx, input }) => {
-      const { id, ...data } = input;
-      return ctx.db.quiz.update({ where: { id }, data });
+      const { id, categoryIds, ...rest } = input;
+      return ctx.db.quiz.update({
+        where: { id },
+        data: {
+          ...rest,
+          ...(categoryIds !== undefined && {
+            categories: { set: categoryIds.map((cid) => ({ id: cid })) },
+          }),
+        },
+      });
     }),
 
   delete: adminProcedure

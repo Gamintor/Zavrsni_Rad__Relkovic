@@ -3,6 +3,30 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, type RouterOutputs } from "~/trpc/react";
+
+// Count-up hook: animira broj od `from` do `to` u `durationMs`
+function useCountUp(to: number, durationMs = 600): number {
+  const [display, setDisplay] = useState(to);
+  const prev = useRef(to);
+
+  useEffect(() => {
+    const from = prev.current;
+    prev.current = to;
+    if (from === to) return;
+    const steps = 20;
+    const step = (to - from) / steps;
+    const interval = durationMs / steps;
+    let i = 0;
+    const id = setInterval(() => {
+      i++;
+      setDisplay(Math.round(from + step * i));
+      if (i >= steps) { clearInterval(id); setDisplay(to); }
+    }, interval);
+    return () => clearInterval(id);
+  }, [to, durationMs]);
+
+  return display;
+}
 import Timer from "./Timer";
 import MultipleChoice from "./challenges/MultipleChoice";
 import TrueFalse from "./challenges/TrueFalse";
@@ -66,6 +90,8 @@ export default function GameScreen({ sessionId }: { sessionId: string }) {
   const [quizTitle, setQuizTitle] = useState("");
   const [feedback, setFeedback] = useState<FeedbackState | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
+
+  const displayScore = useCountUp(totalScore);
 
   const startTimeRef = useRef(Date.now());
 
@@ -192,8 +218,11 @@ export default function GameScreen({ sessionId }: { sessionId: string }) {
             <span className={DIFFICULTY_COLOR[challenge.difficulty]}>
               {DIFFICULTY_LABEL[challenge.difficulty]}
             </span>
-            <span className="font-bold text-[hsl(280,100%,70%)]">
-              {totalScore} bod.
+            <span
+              key={totalScore}
+              className="animate-score-bump font-bold text-[hsl(280,100%,70%)]"
+            >
+              {displayScore} bod.
             </span>
           </div>
         </div>
@@ -314,10 +343,10 @@ export default function GameScreen({ sessionId }: { sessionId: string }) {
         {/* Feedback overlay */}
         {isSubmitted && feedback && (
           <div
-            className={`mt-6 rounded-xl p-5 text-center font-bold transition-all ${
+            className={`mt-6 rounded-xl p-5 text-center font-bold ${
               feedback.isCorrect
-                ? "bg-green-500/20 text-green-300"
-                : "bg-red-500/20 text-red-300"
+                ? "animate-feedback-correct bg-green-500/20 text-green-300"
+                : "animate-feedback-wrong bg-red-500/20 text-red-300"
             }`}
           >
             <p className="text-2xl">
@@ -327,7 +356,7 @@ export default function GameScreen({ sessionId }: { sessionId: string }) {
               <p className="mt-1 text-base font-normal">
                 +{feedback.pointsAwarded} bodova
                 {feedback.streak > 1 && (
-                  <span className="ml-2 text-[hsl(280,100%,70%)]">
+                  <span className="animate-streak-pulse ml-2 inline-block text-[hsl(280,100%,70%)]">
                     🔥 {feedback.streak}× streak
                   </span>
                 )}

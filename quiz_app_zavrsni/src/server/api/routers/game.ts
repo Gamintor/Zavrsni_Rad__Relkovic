@@ -27,7 +27,7 @@ export const gameRouter = createTRPCRouter({
     ctx.db.quiz.findMany({
       where: { isPublished: true },
       include: {
-        category: { select: { name: true } },
+        categories: { select: { name: true } },
         _count: { select: { quizChallenges: true } },
       },
       orderBy: { createdAt: "desc" },

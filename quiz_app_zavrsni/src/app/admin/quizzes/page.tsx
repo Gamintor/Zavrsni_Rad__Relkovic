@@ -54,7 +54,9 @@ export default function QuizzesPage() {
                 >
                   <td className="p-3 font-medium">{q.title}</td>
                   <td className="p-3 text-white/60">
-                    {q.category?.name ?? "—"}
+                    {q.categories.length > 0
+                      ? q.categories.map((c) => c.name).join(", ")
+                      : "—"}
                   </td>
                   <td className="p-3 text-white/60">
                     {q._count.quizChallenges}
