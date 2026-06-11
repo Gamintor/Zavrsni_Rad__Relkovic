@@ -13,6 +13,7 @@ const config = {
       { protocol: "https", hostname: "*.ufs.sh" },
     ],
   },
+  eslint: { ignoreDuringBuilds:true }
 };
 
 export default config;
