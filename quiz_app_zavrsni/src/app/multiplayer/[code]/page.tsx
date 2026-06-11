@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useCallback, useEffect, useRef, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "~/trpc/react";
 import { useSocket } from "~/app/_components/SocketProvider";
@@ -20,7 +20,6 @@ import type {
   RoundResultEntry,
   LeaderboardEntry,
 } from "~/server/socket/handler";
-import { useRouter } from "next/navigation";
 
 type GamePhase =
   | "loading"
@@ -63,7 +62,6 @@ export default function MultiplayerRoomPage({
 }) {
   const { code } = use(params);
   const upperCode = code.toUpperCase();
-  const router = useRouter();
   const { socket, connected } = useSocket();
 
   const [phase, setPhase] = useState<GamePhase>("loading");
@@ -79,11 +77,9 @@ export default function MultiplayerRoomPage({
 
   const { data: room } = api.room.getByCode.useQuery({ code: upperCode });
   const { data: me } = api.user.me.useQuery();
-  const startMutation = api.room.create.useMutation(); // placeholder — host uses socket
 
   const isHost = room?.hostId === me?.id;
 
-  // Registriraj socket handlere
   useEffect(() => {
     if (!socket || !connected) return;
 
@@ -156,56 +152,58 @@ export default function MultiplayerRoomPage({
     socket.emit("host:start", { code: upperCode });
   };
 
-  // ─── Renderiranje ──────────────────────────────────────────────────────────
+  // ─── Renderiranje ─────────────────────────────────────────────────────────
 
   if (phase === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#15162c] text-white">
-        <p className="text-white/50">Spajanje na sobu...</p>
+      <div className="flex min-h-screen items-center justify-center">
+        <p style={{ color: "var(--text-mut)" }}>Spajanje na sobu...</p>
       </div>
     );
   }
 
   if (phase === "error") {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#15162c] text-white">
-        <p className="text-red-400">{errorMsg}</p>
-        <Link href="/" className="rounded-full bg-white/10 px-8 py-3 font-semibold transition hover:bg-white/20">
-          Natrag na početak
-        </Link>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+        <p style={{ color: "var(--red)" }}>{errorMsg}</p>
+        <Link href="/" className="btn-secondary px-8 py-3">Natrag na početak</Link>
       </div>
     );
   }
 
   if (phase === "lobby") {
     return (
-      <main className="min-h-screen bg-[#15162c] text-white">
+      <main className="min-h-screen">
         <div className="container mx-auto max-w-lg px-4 py-12">
           <div className="mb-6 text-center">
-            <p className="text-sm text-white/50">Kod sobe</p>
-            <p className="mt-1 text-4xl font-extrabold tracking-[0.3em] text-[hsl(280,100%,70%)]">
+            <p className="text-sm" style={{ color: "var(--text-mut)" }}>Kod sobe</p>
+            <p
+              className="mt-1 text-4xl font-extrabold tracking-[0.3em]"
+              style={{ color: "var(--powder)", textShadow: "0 0 30px rgba(168,218,220,0.4)" }}
+            >
               {upperCode}
             </p>
-            <p className="mt-1 text-xs text-white/30">
+            <p className="mt-1 text-xs" style={{ color: "var(--text-mut)" }}>
               Podijeli ovaj kod s prijateljima
             </p>
           </div>
 
-          <div className="mb-6 rounded-2xl bg-white/10 p-6">
-            <h2 className="mb-4 font-semibold">
+          <div className="glass mb-6 rounded-[var(--r-card)] p-6">
+            <h2 className="mb-4 font-semibold" style={{ color: "var(--cream)" }}>
               Igrači ({players.filter((p) => p.connected).length} / {players.length})
             </h2>
             <ul className="space-y-2">
               {players.map((p) => (
                 <li key={p.userId} className="flex items-center gap-3">
                   <span
-                    className={`h-2 w-2 rounded-full ${p.connected ? "bg-green-400" : "bg-white/20"}`}
+                    className="h-2 w-2 rounded-full"
+                    style={{ background: p.connected ? "var(--green)" : "var(--border-soft)" }}
                   />
-                  <span className={p.connected ? "text-white" : "text-white/40"}>
+                  <span style={{ color: p.connected ? "var(--cream)" : "var(--text-mut)" }}>
                     {p.name}
                   </span>
                   {p.userId === room?.hostId && (
-                    <span className="ml-auto text-xs text-[hsl(280,100%,70%)]">host</span>
+                    <span className="ml-auto text-xs font-semibold" style={{ color: "var(--powder)" }}>host</span>
                   )}
                 </li>
               ))}
@@ -216,12 +214,12 @@ export default function MultiplayerRoomPage({
             <button
               onClick={handleStart}
               disabled={players.filter((p) => p.connected).length < 1}
-              className="w-full rounded-full bg-[hsl(280,100%,70%)] py-3 font-semibold text-black transition hover:opacity-90 disabled:opacity-40"
+              className="btn-primary w-full py-3 disabled:opacity-40"
             >
               Pokreni igru
             </button>
           ) : (
-            <p className="text-center text-sm text-white/50">Čekaj da host pokrene igru...</p>
+            <p className="text-center text-sm" style={{ color: "var(--text-mut)" }}>Čekaj da host pokrene igru...</p>
           )}
         </div>
       </main>
@@ -230,40 +228,51 @@ export default function MultiplayerRoomPage({
 
   if (phase === "between_rounds" && roundResult) {
     return (
-      <main className="flex min-h-screen flex-col bg-[#15162c] text-white">
+      <main className="min-h-screen">
         <div className="container mx-auto max-w-lg px-4 py-12">
-          <h2 className="mb-6 text-center text-2xl font-bold">Rezultati runde</h2>
+          <h2 className="mb-6 text-center text-2xl font-bold" style={{ color: "var(--cream)" }}>Rezultati runde</h2>
 
-          <div className="mb-6 overflow-hidden rounded-xl border border-white/10">
-            {roundResult.perPlayer.map((p) => (
-              <div key={p.userId} className="flex items-center justify-between border-t border-white/10 px-4 py-3 first:border-t-0">
+          <div className="glass mb-6 overflow-hidden rounded-[var(--r-card)]">
+            {roundResult.perPlayer.map((p, i) => (
+              <div
+                key={p.userId}
+                className="flex items-center justify-between px-4 py-3"
+                style={{ borderTop: i === 0 ? "none" : "1px solid var(--border-soft)" }}
+              >
                 <div className="flex items-center gap-3">
-                  <span className={p.isCorrect ? "text-green-400" : "text-red-400"}>
+                  <span className="font-bold" style={{ color: p.isCorrect ? "var(--green)" : "var(--red)" }}>
                     {p.isCorrect ? "✓" : "✗"}
                   </span>
-                  <span>{p.name}</span>
+                  <span style={{ color: "var(--cream)" }}>{p.name}</span>
                 </div>
-                <span className="font-bold text-[hsl(280,100%,70%)]">
+                <span className="font-bold" style={{ color: "var(--powder)" }}>
                   {p.pointsAwarded > 0 ? `+${p.pointsAwarded}` : "—"}
                 </span>
               </div>
             ))}
           </div>
 
-          <h3 className="mb-3 font-semibold text-white/70">Ljestvica</h3>
-          <div className="overflow-hidden rounded-xl border border-white/10">
+          <h3 className="mb-3 font-semibold" style={{ color: "var(--text-mut)" }}>Ljestvica</h3>
+          <div className="glass overflow-hidden rounded-[var(--r-card)]">
             {roundResult.leaderboard.map((entry, i) => (
-              <div key={entry.userId} className={`flex items-center justify-between border-t border-white/10 px-4 py-3 first:border-t-0 ${entry.userId === me?.id ? "bg-[hsl(280,100%,70%)]/10" : ""}`}>
+              <div
+                key={entry.userId}
+                className="flex items-center justify-between px-4 py-3"
+                style={{
+                  borderTop: i === 0 ? "none" : "1px solid var(--border-soft)",
+                  background: entry.userId === me?.id ? "rgba(168,218,220,0.07)" : "transparent",
+                }}
+              >
                 <div className="flex items-center gap-3">
-                  <span className="w-5 text-center text-white/40">{i + 1}.</span>
-                  <span>{entry.name}</span>
+                  <span className="w-5 text-center" style={{ color: "var(--text-mut)" }}>{i + 1}.</span>
+                  <span style={{ color: "var(--cream)" }}>{entry.name}</span>
                 </div>
-                <span className="font-bold">{entry.score}</span>
+                <span className="font-bold" style={{ color: "var(--powder)" }}>{entry.score}</span>
               </div>
             ))}
           </div>
 
-          <p className="mt-6 text-center text-sm text-white/40">Sljedeći izazov stiže za trenutak...</p>
+          <p className="mt-6 text-center text-sm" style={{ color: "var(--text-mut)" }}>Sljedeći izazov stiže za trenutak...</p>
         </div>
       </main>
     );
@@ -275,42 +284,51 @@ export default function MultiplayerRoomPage({
     const winner = gameOver.leaderboard[0];
 
     return (
-      <main className="flex min-h-screen flex-col bg-[#15162c] text-white">
+      <main className="min-h-screen">
         <div className="container mx-auto max-w-lg px-4 py-12 text-center">
           <p className="text-6xl">🏆</p>
-          <h1 className="mt-4 text-3xl font-extrabold">Igra završena!</h1>
+          <h1 className="mt-4 text-3xl font-extrabold" style={{ color: "var(--cream)" }}>Igra završena!</h1>
           {winner && (
-            <p className="mt-2 text-lg text-white/70">
-              Pobjednik: <span className="font-bold text-[hsl(280,100%,70%)]">{winner.name}</span>
+            <p className="mt-2 text-lg" style={{ color: "var(--text-mut)" }}>
+              Pobjednik: <span className="font-bold" style={{ color: "var(--powder)" }}>{winner.name}</span>
             </p>
           )}
 
           {myEntry && (
-            <div className="mx-auto mt-6 w-fit rounded-2xl bg-white/10 px-8 py-4">
-              <p className="text-4xl font-extrabold text-[hsl(280,100%,70%)]">{myEntry.score}</p>
-              <p className="text-sm text-white/50">tvoji bodovi · {myRank}. mjesto</p>
+            <div
+              className="glass mx-auto mt-6 w-fit rounded-[var(--r-card)] px-8 py-4"
+            >
+              <p className="text-4xl font-extrabold" style={{ color: "var(--powder)" }}>{myEntry.score}</p>
+              <p className="text-sm" style={{ color: "var(--text-mut)" }}>tvoji bodovi · {myRank}. mjesto</p>
             </div>
           )}
 
-          <div className="mt-8 overflow-hidden rounded-xl border border-white/10 text-left">
+          <div className="glass mt-8 overflow-hidden rounded-[var(--r-card)] text-left">
             {gameOver.leaderboard.map((entry, i) => (
-              <div key={entry.userId} className={`flex items-center justify-between border-t border-white/10 px-4 py-3 first:border-t-0 ${entry.userId === me?.id ? "bg-[hsl(280,100%,70%)]/10" : ""}`}>
+              <div
+                key={entry.userId}
+                className="flex items-center justify-between px-4 py-3"
+                style={{
+                  borderTop: i === 0 ? "none" : "1px solid var(--border-soft)",
+                  background: entry.userId === me?.id ? "rgba(168,218,220,0.07)" : "transparent",
+                }}
+              >
                 <div className="flex items-center gap-3">
                   <span className="w-6 text-center">
-                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : <span className="text-white/40">{i + 1}.</span>}
+                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : <span style={{ color: "var(--text-mut)" }}>{i + 1}.</span>}
                   </span>
-                  <span>{entry.name}</span>
+                  <span style={{ color: "var(--cream)" }}>{entry.name}</span>
                 </div>
-                <span className="font-bold">{entry.score}</span>
+                <span className="font-bold" style={{ color: "var(--powder)" }}>{entry.score}</span>
               </div>
             ))}
           </div>
 
           <div className="mt-8 flex gap-3">
-            <Link href="/multiplayer/create" className="flex-1 rounded-full bg-[hsl(280,100%,70%)] py-3 text-center font-semibold text-black transition hover:opacity-90">
+            <Link href="/multiplayer/create" className="btn-primary flex-1 py-3 text-center">
               Nova igra
             </Link>
-            <Link href="/" className="flex-1 rounded-full bg-white/10 py-3 text-center font-semibold transition hover:bg-white/20">
+            <Link href="/" className="btn-secondary flex-1 py-3 text-center">
               Natrag
             </Link>
           </div>
@@ -331,25 +349,32 @@ export default function MultiplayerRoomPage({
   const showMediaInPrompt = !!challenge.mediaUrl && !SELF_MEDIA_TYPES.includes(challenge.type);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#15162c] text-white">
+    <div className="flex min-h-screen flex-col">
       {/* Header */}
-      <header className="border-b border-white/10 px-6 py-4">
+      <header className="px-6 py-4" style={{ borderBottom: "1px solid var(--border-soft)", background: "var(--glass)" }}>
         <div className="mx-auto flex max-w-2xl items-center justify-between">
-          <div className="text-sm text-white/60">
-            <span className="font-semibold text-white">{upperCode}</span>
+          <div className="text-sm" style={{ color: "var(--text-mut)" }}>
+            <span className="font-semibold" style={{ color: "var(--cream)" }}>{upperCode}</span>
             <span className="mx-2">·</span>
             {challenge.index + 1} / {challenge.total}
           </div>
           <div className="flex items-center gap-4 text-sm">
-            <span className="font-bold text-[hsl(280,100%,70%)]">{myScore} bod.</span>
+            <span className="font-bold" style={{ color: "var(--powder)" }}>{myScore} bod.</span>
           </div>
         </div>
+        {/* Progres */}
         <div className="mx-auto mt-3 max-w-2xl">
-          <div className="h-1 overflow-hidden rounded-full bg-white/10">
-            <div
-              className="h-full rounded-full bg-[hsl(280,100%,70%)] transition-all"
-              style={{ width: `${((challenge.index + 1) / challenge.total) * 100}%` }}
-            />
+          <div className="flex gap-1">
+            {Array.from({ length: challenge.total }, (_, i) => (
+              <div
+                key={i}
+                className="h-1 flex-1 rounded-full transition-all"
+                style={{
+                  background: i < challenge.index + 1 ? "var(--powder)" : "var(--border-soft)",
+                  opacity: i === challenge.index ? 1 : 0.6,
+                }}
+              />
+            ))}
           </div>
         </div>
         {/* Tko je odgovorio */}
@@ -358,9 +383,8 @@ export default function MultiplayerRoomPage({
             <span
               key={p.userId}
               title={p.name}
-              className={`h-2 w-2 rounded-full transition-colors ${
-                answeredUserIds.has(p.userId) ? "bg-green-400" : "bg-white/20"
-              }`}
+              className="h-2 w-2 rounded-full transition-colors"
+              style={{ background: answeredUserIds.has(p.userId) ? "var(--green)" : "var(--border-soft)" }}
             />
           ))}
         </div>
@@ -378,11 +402,17 @@ export default function MultiplayerRoomPage({
         </div>
 
         {/* Prompt */}
-        <div className="mb-8">
-          <p className="text-xl font-semibold leading-relaxed">{challenge.prompt}</p>
+        <div className="glass mb-6 rounded-[var(--r-card)] p-6">
+          <p className="text-xl font-semibold leading-relaxed" style={{ color: "var(--cream)" }}>
+            {challenge.prompt}
+          </p>
           {showMediaInPrompt && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={challenge.mediaUrl!} alt="Slika izazova" className="mt-4 max-h-64 rounded-xl object-contain" />
+            <img
+              src={challenge.mediaUrl!}
+              alt="Slika izazova"
+              className="mt-4 max-h-64 rounded-[var(--r-tile)] object-contain"
+            />
           )}
         </div>
 
@@ -419,7 +449,14 @@ export default function MultiplayerRoomPage({
 
         {/* Feedback */}
         {answered && feedback && (
-          <div className={`mt-6 rounded-xl p-5 text-center font-bold ${feedback.isCorrect ? "bg-green-500/20 text-green-300" : "bg-red-500/20 text-red-300"}`}>
+          <div
+            className="mt-6 rounded-[var(--r-card)] p-5 text-center font-bold"
+            style={{
+              background: feedback.isCorrect ? "rgba(42,157,143,0.15)" : "rgba(230,57,70,0.15)",
+              border: `1px solid ${feedback.isCorrect ? "rgba(42,157,143,0.4)" : "rgba(230,57,70,0.4)"}`,
+              color: feedback.isCorrect ? "var(--green)" : "var(--red)",
+            }}
+          >
             <p className="text-2xl">{feedback.isCorrect ? "✓ Točno!" : "✗ Netočno"}</p>
             {feedback.isCorrect && (
               <p className="mt-1 text-base font-normal">+{feedback.pointsAwarded} bodova</p>
@@ -427,7 +464,7 @@ export default function MultiplayerRoomPage({
           </div>
         )}
         {answered && !feedback && (
-          <div className="mt-6 rounded-xl bg-white/10 p-5 text-center text-white/50">
+          <div className="glass mt-6 rounded-[var(--r-card)] p-5 text-center" style={{ color: "var(--text-mut)" }}>
             Čekaj ostale igrače...
           </div>
         )}

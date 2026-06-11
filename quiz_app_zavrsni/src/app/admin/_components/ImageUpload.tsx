@@ -3,40 +3,33 @@
 import { UploadButton } from "~/utils/uploadthing";
 
 interface Props {
-  /** Trenutni URL (prazno ako nije uploadano). */
   value: string;
-  /** Zove se s novim URL-om nakon uspješnog uploada, ili "" za brisanje. */
   onChange: (url: string) => void;
-  /** Label iznad komponente. */
   label?: string;
-  /** Klase za vanjski wrapper. */
   className?: string;
 }
 
-/**
- * Wrapper oko UploadThing UploadButton-a.
- * Prikazuje preview uploadane slike, gumb za upload i gumb za brisanje.
- */
 export function ImageUpload({ value, onChange, label, className }: Props) {
   return (
     <div className={`space-y-2 ${className ?? ""}`}>
       {label && (
-        <span className="block text-sm text-white/70">{label}</span>
+        <span className="block text-sm" style={{ color: "var(--text-mut)" }}>{label}</span>
       )}
 
-      {/* Preview uploadane slike */}
       {value && (
         <div className="group relative inline-block">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={value}
             alt="Preview"
-            className="max-h-48 rounded-lg border border-white/10 object-contain"
+            className="max-h-48 rounded-[var(--r-tile)] object-contain"
+            style={{ border: "1px solid var(--border-soft)" }}
           />
           <button
             type="button"
             onClick={() => onChange("")}
-            className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white opacity-0 shadow transition group-hover:opacity-100"
+            className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full text-[10px] shadow transition opacity-0 group-hover:opacity-100"
+            style={{ background: "var(--red)", color: "var(--cream)" }}
             title="Ukloni sliku"
           >
             ✕
@@ -44,7 +37,6 @@ export function ImageUpload({ value, onChange, label, className }: Props) {
         </div>
       )}
 
-      {/* UploadThing gumb */}
       <UploadButton
         endpoint="imageUploader"
         onClientUploadComplete={(res) => {
@@ -57,8 +49,8 @@ export function ImageUpload({ value, onChange, label, className }: Props) {
         }}
         appearance={{
           button:
-            "rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20 ut-uploading:cursor-not-allowed ut-uploading:opacity-60 after:bg-[hsl(280,100%,70%)]",
-          allowedContent: "text-xs text-white/30 mt-1",
+            "rounded-full px-4 py-2 text-sm font-medium transition ut-uploading:cursor-not-allowed ut-uploading:opacity-60",
+          allowedContent: "text-xs mt-1",
         }}
         content={{
           button: value ? "Zamijeni sliku" : "Odaberi sliku",

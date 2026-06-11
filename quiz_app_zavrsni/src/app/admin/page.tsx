@@ -9,16 +9,8 @@ export default function AdminDashboard() {
   const { data: quizzes } = api.content.quiz.list.useQuery();
 
   const stats = [
-    {
-      label: "Kategorije",
-      value: categories?.length,
-      href: "/admin/categories",
-    },
-    {
-      label: "Izazovi",
-      value: challenges?.length,
-      href: "/admin/challenges",
-    },
+    { label: "Kategorije", value: categories?.length, href: "/admin/categories" },
+    { label: "Izazovi", value: challenges?.length, href: "/admin/challenges" },
     { label: "Kvizovi", value: quizzes?.length, href: "/admin/quizzes" },
     {
       label: "Objavljeni",
@@ -29,19 +21,19 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="mb-8 text-3xl font-bold">Dashboard</h1>
+      <h1 className="mb-8 text-3xl font-bold" style={{ color: "var(--cream)" }}>Dashboard</h1>
 
       <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
         {stats.map(({ label, value, href }) => (
           <Link
             key={label}
             href={href}
-            className="rounded-xl bg-white/10 p-6 transition hover:bg-white/20"
+            className="glass hoverable rounded-[var(--r-card)] p-6 transition"
           >
-            <div className="text-3xl font-bold text-[hsl(280,100%,70%)]">
+            <div className="text-3xl font-bold" style={{ color: "var(--powder)" }}>
               {value ?? "—"}
             </div>
-            <div className="mt-1 text-sm text-white/60">{label}</div>
+            <div className="mt-1 text-sm" style={{ color: "var(--text-mut)" }}>{label}</div>
           </Link>
         ))}
       </div>
@@ -55,7 +47,8 @@ export default function AdminDashboard() {
           <Link
             key={href}
             href={href}
-            className="rounded-xl border border-white/20 p-4 text-center text-sm font-semibold transition hover:bg-white/10"
+            className="hoverable rounded-[var(--r-tile)] p-4 text-center text-sm font-semibold transition"
+            style={{ border: "1px solid var(--border-soft)", color: "var(--cream)" }}
           >
             + {label}
           </Link>

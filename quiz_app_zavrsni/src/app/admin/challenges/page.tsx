@@ -5,22 +5,22 @@ import { useState } from "react";
 import { api } from "~/trpc/react";
 import type { ChallengeType, Difficulty } from "../../../../generated/prisma";
 
-const TYPE_COLORS: Record<string, string> = {
-  MULTIPLE_CHOICE: "bg-blue-500/20 text-blue-300",
-  TRUE_FALSE: "bg-green-500/20 text-green-300",
-  TEXT_INPUT: "bg-yellow-500/20 text-yellow-300",
-  VISUAL_CLICK: "bg-purple-500/20 text-purple-300",
-  SPOT_DIFFERENCE: "bg-pink-500/20 text-pink-300",
-  IMAGE_ORDER: "bg-orange-500/20 text-orange-300",
-  PUZZLE: "bg-teal-500/20 text-teal-300",
-  MEMORY: "bg-indigo-500/20 text-indigo-300",
-  SEQUENCE: "bg-red-500/20 text-red-300",
+const TYPE_STYLE: Record<string, { bg: string; color: string }> = {
+  MULTIPLE_CHOICE: { bg: "rgba(69,123,157,0.2)", color: "#a8dadc" },
+  TRUE_FALSE: { bg: "rgba(42,157,143,0.2)", color: "#2a9d8f" },
+  TEXT_INPUT: { bg: "rgba(230,200,57,0.15)", color: "#e6c839" },
+  VISUAL_CLICK: { bg: "rgba(168,218,220,0.15)", color: "#a8dadc" },
+  SPOT_DIFFERENCE: { bg: "rgba(230,57,70,0.15)", color: "#e63946" },
+  IMAGE_ORDER: { bg: "rgba(241,250,238,0.1)", color: "#f1faee" },
+  PUZZLE: { bg: "rgba(42,157,143,0.15)", color: "#2a9d8f" },
+  MEMORY: { bg: "rgba(69,123,157,0.2)", color: "#457b9d" },
+  SEQUENCE: { bg: "rgba(230,57,70,0.15)", color: "#e63946" },
 };
 
-const DIFF_COLORS: Record<Difficulty, string> = {
-  EASY: "bg-green-500/20 text-green-300",
-  MEDIUM: "bg-yellow-500/20 text-yellow-300",
-  HARD: "bg-red-500/20 text-red-300",
+const DIFF_STYLE: Record<Difficulty, { bg: string; color: string }> = {
+  EASY: { bg: "rgba(42,157,143,0.2)", color: "#2a9d8f" },
+  MEDIUM: { bg: "rgba(230,200,57,0.15)", color: "#e6c839" },
+  HARD: { bg: "rgba(230,57,70,0.2)", color: "#e63946" },
 };
 const DIFF_LABELS: Record<Difficulty, string> = {
   EASY: "Lako",
@@ -30,150 +30,123 @@ const DIFF_LABELS: Record<Difficulty, string> = {
 
 export default function ChallengesPage() {
   const { data: categories } = api.content.category.list.useQuery();
-  const [filter, setFilter] = useState<{
-    categoryId?: string;
-    type?: ChallengeType;
-    difficulty?: Difficulty;
-  }>({});
-
-  const {
-    data: challenges,
-    isLoading,
-    refetch,
-  } = api.content.challenge.list.useQuery(filter);
-  const del = api.content.challenge.delete.useMutation({
-    onSuccess: () => void refetch(),
-  });
+  const [filter, setFilter] = useState<{ categoryId?: string; type?: ChallengeType; difficulty?: Difficulty }>({});
+  const { data: challenges, isLoading, refetch } = api.content.challenge.list.useQuery(filter);
+  const del = api.content.challenge.delete.useMutation({ onSuccess: () => void refetch() });
 
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Izazovi</h1>
-        <Link
-          href="/admin/challenges/new"
-          className="rounded-full bg-[hsl(280,100%,70%)] px-6 py-2 text-sm font-semibold text-black transition hover:opacity-90"
-        >
+        <h1 className="text-3xl font-bold" style={{ color: "var(--cream)" }}>Izazovi</h1>
+        <Link href="/admin/challenges/new" className="btn-primary px-6 py-2 text-sm">
           + Novi izazov
         </Link>
       </div>
 
       <div className="mb-4 flex flex-wrap gap-2">
-        <select
-          value={filter.categoryId ?? ""}
-          onChange={(e) =>
-            setFilter((f) => ({
-              ...f,
-              categoryId: e.target.value || undefined,
-            }))
-          }
-          className="rounded bg-white/10 px-3 py-1.5 text-sm outline-none"
-        >
-          <option value="">Sve kategorije</option>
-          {categories?.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-        <select
-          value={filter.type ?? ""}
-          onChange={(e) =>
-            setFilter((f) => ({
-              ...f,
-              type: (e.target.value as ChallengeType) || undefined,
-            }))
-          }
-          className="rounded bg-white/10 px-3 py-1.5 text-sm outline-none"
-        >
-          <option value="">Svi tipovi</option>
-          {Object.keys(TYPE_COLORS).map((t) => (
-            <option key={t} value={t}>
-              {t.replace(/_/g, " ")}
-            </option>
-          ))}
-        </select>
-        <select
-          value={filter.difficulty ?? ""}
-          onChange={(e) =>
-            setFilter((f) => ({
-              ...f,
-              difficulty: (e.target.value as Difficulty) || undefined,
-            }))
-          }
-          className="rounded bg-white/10 px-3 py-1.5 text-sm outline-none"
-        >
-          <option value="">Sve težine</option>
-          {Object.entries(DIFF_LABELS).map(([v, label]) => (
-            <option key={v} value={v}>
-              {label}
-            </option>
-          ))}
-        </select>
+        {[
+          {
+            value: filter.categoryId ?? "",
+            onChange: (v: string) => setFilter((f) => ({ ...f, categoryId: v || undefined })),
+            options: [
+              { value: "", label: "Sve kategorije" },
+              ...(categories?.map((c) => ({ value: c.id, label: c.name })) ?? []),
+            ],
+          },
+          {
+            value: filter.type ?? "",
+            onChange: (v: string) => setFilter((f) => ({ ...f, type: (v as ChallengeType) || undefined })),
+            options: [
+              { value: "", label: "Svi tipovi" },
+              ...Object.keys(TYPE_STYLE).map((t) => ({ value: t, label: t.replace(/_/g, " ") })),
+            ],
+          },
+          {
+            value: filter.difficulty ?? "",
+            onChange: (v: string) => setFilter((f) => ({ ...f, difficulty: (v as Difficulty) || undefined })),
+            options: [
+              { value: "", label: "Sve težine" },
+              ...Object.entries(DIFF_LABELS).map(([v, label]) => ({ value: v, label })),
+            ],
+          },
+        ].map((sel, i) => (
+          <select
+            key={i}
+            value={sel.value}
+            onChange={(e) => sel.onChange(e.target.value)}
+            className="input-field py-1.5 text-sm"
+            style={{ width: "auto" }}
+          >
+            {sel.options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        ))}
       </div>
 
-      {isLoading && <p className="text-white/50">Učitavanje...</p>}
+      {isLoading && <p style={{ color: "var(--text-mut)" }}>Učitavanje...</p>}
       {!isLoading && challenges?.length === 0 && (
-        <p className="text-white/50">Nema izazova za odabrane filtere.</p>
+        <p style={{ color: "var(--text-mut)" }}>Nema izazova za odabrane filtere.</p>
       )}
       {challenges && challenges.length > 0 && (
-        <div className="overflow-hidden rounded-xl border border-white/10">
+        <div className="glass overflow-hidden rounded-[var(--r-card)]">
           <table className="w-full text-sm">
-            <thead className="bg-white/5">
-              <tr>
-                {["Tip", "Pitanje", "Kategorija", "Težina", "Bodovi", "U kvizovima", ""].map(
-                  (h) => (
-                    <th key={h} className="p-3 text-left font-medium text-white/70">
-                      {h}
-                    </th>
-                  ),
-                )}
+            <thead>
+              <tr style={{ background: "var(--glass-strong)" }}>
+                {["Tip", "Pitanje", "Kategorija", "Težina", "Bodovi", "U kvizovima", ""].map((h) => (
+                  <th key={h} className="p-3 text-left font-medium" style={{ color: "var(--text-mut)" }}>{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {challenges.map((ch) => (
-                <tr
-                  key={ch.id}
-                  className="border-t border-white/10 hover:bg-white/5"
-                >
-                  <td className="p-3">
-                    <span
-                      className={`rounded px-2 py-0.5 font-mono text-xs ${TYPE_COLORS[ch.type]}`}
-                    >
-                      {ch.type.replace(/_/g, " ")}
-                    </span>
-                  </td>
-                  <td className="max-w-xs p-3">
-                    <span className="line-clamp-2 text-white/90">{ch.prompt}</span>
-                  </td>
-                  <td className="p-3 text-white/60">{ch.category.name}</td>
-                  <td className="p-3">
-                    <span
-                      className={`rounded px-2 py-0.5 text-xs ${DIFF_COLORS[ch.difficulty]}`}
-                    >
-                      {DIFF_LABELS[ch.difficulty]}
-                    </span>
-                  </td>
-                  <td className="p-3 text-white/60">{ch.basePoints}</td>
-                  <td className="p-3 text-white/60">{ch._count.quizChallenges}</td>
-                  <td className="p-3 text-right">
-                    <Link
-                      href={`/admin/challenges/${ch.id}/edit`}
-                      className="mr-2 rounded px-3 py-1 text-xs transition hover:bg-white/10"
-                    >
-                      Uredi
-                    </Link>
-                    <button
-                      onClick={() => {
-                        if (confirm("Obriši ovaj izazov?"))
-                          del.mutate({ id: ch.id });
-                      }}
-                      className="rounded px-3 py-1 text-xs text-red-400 transition hover:bg-red-400/10"
-                    >
-                      Briši
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {challenges.map((ch) => {
+                const ts = TYPE_STYLE[ch.type];
+                const ds = DIFF_STYLE[ch.difficulty];
+                return (
+                  <tr key={ch.id} className="transition" style={{ borderTop: "1px solid var(--border-soft)" }}>
+                    <td className="p-3">
+                      <span
+                        className="rounded-full px-2 py-0.5 font-mono text-xs"
+                        style={{ background: ts?.bg, color: ts?.color }}
+                      >
+                        {ch.type.replace(/_/g, " ")}
+                      </span>
+                    </td>
+                    <td className="max-w-xs p-3">
+                      <span className="line-clamp-2" style={{ color: "var(--cream)" }}>{ch.prompt}</span>
+                    </td>
+                    <td className="p-3" style={{ color: "var(--text-mut)" }}>{ch.category.name}</td>
+                    <td className="p-3">
+                      <span
+                        className="rounded-full px-2 py-0.5 text-xs"
+                        style={{ background: ds?.bg, color: ds?.color }}
+                      >
+                        {DIFF_LABELS[ch.difficulty]}
+                      </span>
+                    </td>
+                    <td className="p-3" style={{ color: "var(--text-mut)" }}>{ch.basePoints}</td>
+                    <td className="p-3" style={{ color: "var(--text-mut)" }}>{ch._count.quizChallenges}</td>
+                    <td className="p-3 text-right">
+                      <Link
+                        href={`/admin/challenges/${ch.id}/edit`}
+                        className="mr-2 rounded-[var(--r-tile)] px-3 py-1 text-xs transition"
+                        style={{ color: "var(--powder)" }}
+                        onMouseOver={(e) => (e.currentTarget.style.background = "var(--glass-strong)")}
+                        onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}
+                      >
+                        Uredi
+                      </Link>
+                      <button
+                        onClick={() => { if (confirm("Obriši ovaj izazov?")) del.mutate({ id: ch.id }); }}
+                        className="rounded-[var(--r-tile)] px-3 py-1 text-xs transition"
+                        style={{ color: "var(--red)" }}
+                        onMouseOver={(e) => (e.currentTarget.style.background = "rgba(230,57,70,0.1)")}
+                        onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}
+                      >
+                        Briši
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

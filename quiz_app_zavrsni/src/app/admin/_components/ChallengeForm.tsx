@@ -199,7 +199,7 @@ function FieldsMC({
 }) {
   return (
     <div className="space-y-3">
-      <p className="text-sm text-white/70">
+      <p className="text-sm" style={{ color: "var(--text-mut)" }}>
         Opcije — označi jednu ili više točnih
       </p>
       {state.options.map((opt, i) => (
@@ -213,7 +213,7 @@ function FieldsMC({
                 : state.correctIndices.filter((x) => x !== i);
               set({ ...state, correctIndices: idxs });
             }}
-            className="h-4 w-4 accent-[hsl(280,100%,70%)]"
+            className="h-4 w-4 accent-[var(--powder)]"
           />
           <input
             value={opt}
@@ -223,7 +223,7 @@ function FieldsMC({
               set({ ...state, options });
             }}
             placeholder={`Opcija ${i + 1}`}
-            className="flex-1 rounded bg-white/10 px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+            className="input-field flex-1 py-1.5 text-sm"
           />
           {state.options.length > 2 && (
             <button
@@ -235,7 +235,7 @@ function FieldsMC({
                   .map((x) => (x > i ? x - 1 : x));
                 set({ options, correctIndices });
               }}
-              className="text-red-400 hover:text-red-300"
+              className="transition" style={{ color: "var(--red)" }}
             >
               ✕
             </button>
@@ -245,7 +245,7 @@ function FieldsMC({
       <button
         type="button"
         onClick={() => set({ ...state, options: [...state.options, ""] })}
-        className="text-sm text-white/50 hover:text-white"
+        className="text-sm transition" style={{ color: "var(--text-mut)" }}
       >
         + Dodaj opciju
       </button>
@@ -262,7 +262,7 @@ function FieldsTF({ state, set }: { state: TFState; set: (s: TFState) => void })
             type="radio"
             checked={state.value === v}
             onChange={() => set({ value: v })}
-            className="accent-[hsl(280,100%,70%)]"
+            className="accent-[var(--powder)]"
           />
           <span>{v ? "Točno" : "Netočno"}</span>
         </label>
@@ -275,12 +275,12 @@ function FieldsTI({ state, set }: { state: TIState; set: (s: TIState) => void })
   return (
     <div className="space-y-3">
       <label className="block">
-        <span className="mb-1 block text-sm text-white/70">Točan odgovor</span>
+        <span className="mb-1 block text-sm" style={{ color: "var(--text-mut)" }}>Točan odgovor</span>
         <input
           value={state.text}
           onChange={(e) => set({ ...state, text: e.target.value })}
           placeholder="Upiši točan odgovor..."
-          className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+          className="input-field"
         />
       </label>
       <label className="flex items-center gap-2 cursor-pointer">
@@ -288,7 +288,7 @@ function FieldsTI({ state, set }: { state: TIState; set: (s: TIState) => void })
           type="checkbox"
           checked={state.caseSensitive}
           onChange={(e) => set({ ...state, caseSensitive: e.target.checked })}
-          className="accent-[hsl(280,100%,70%)]"
+          className="accent-[var(--powder)]"
         />
         <span className="text-sm">Razlikuj velika/mala slova</span>
       </label>
@@ -320,11 +320,11 @@ function FieldsVC({
       {/* Klikabilni image preview za postavljanje koordinata */}
       {mediaUrl ? (
         <div className="space-y-2">
-          <p className="text-sm text-white/70">
+          <p className="text-sm" style={{ color: "var(--text-mut)" }}>
             Klikni na sliku da postaviš ciljnu točku (X, Y se automatski popune):
           </p>
           <div
-            className="relative cursor-crosshair overflow-hidden rounded-lg"
+            className="relative cursor-crosshair overflow-hidden rounded-[var(--r-md)]"
             onClick={handleImageClick}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -332,7 +332,7 @@ function FieldsVC({
               ref={imgRef}
               src={mediaUrl}
               alt="Klikni za postavljanje cilja"
-              className="w-full select-none rounded-lg"
+              className="w-full select-none rounded-[var(--r-md)]"
               draggable={false}
             />
             {/* Marker trenutne pozicije */}
@@ -344,12 +344,12 @@ function FieldsVC({
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <div className="h-6 w-6 rounded-full border-2 border-white bg-[hsl(280,100%,70%)]/80" />
+              <div className="h-6 w-6 rounded-full border-2" style={{ borderColor: "var(--cream)", background: "rgba(230,57,70,0.7)" }} />
             </div>
           </div>
         </div>
       ) : (
-        <p className="text-sm text-white/50">
+        <p className="text-sm" style={{ color: "var(--text-mut)" }}>
           Unesi URL slike iznad pa klikni na sliku za postavljanje cilja, ili ručno unesi koordinate.
         </p>
       )}
@@ -364,7 +364,7 @@ function FieldsVC({
           ] as { key: keyof VCState; label: string }[]
         ).map(({ key, label }) => (
           <label key={key} className="block">
-            <span className="mb-1 block text-sm text-white/70">{label}</span>
+            <span className="mb-1 block text-sm" style={{ color: "var(--text-mut)" }}>{label}</span>
             <input
               type="number"
               step="0.01"
@@ -374,7 +374,7 @@ function FieldsVC({
               onChange={(e) =>
                 set({ ...state, [key]: parseFloat(e.target.value) })
               }
-              className="w-28 rounded bg-white/10 px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+              className="input-field w-28 py-1.5 text-sm"
             />
           </label>
         ))}
@@ -386,7 +386,7 @@ function FieldsVC({
 function FieldsSD({ state, set }: { state: SDState; set: (s: SDState) => void }) {
   return (
     <div className="space-y-3">
-      <p className="text-sm text-white/70">
+      <p className="text-sm" style={{ color: "var(--text-mut)" }}>
         Slika A dolazi iz upload polja "Slika / medij" iznad.
       </p>
       <ImageUpload
@@ -394,7 +394,7 @@ function FieldsSD({ state, set }: { state: SDState; set: (s: SDState) => void })
         value={state.imageB}
         onChange={(url) => set({ ...state, imageB: url })}
       />
-      <p className="text-sm text-white/70">
+      <p className="text-sm" style={{ color: "var(--text-mut)" }}>
         Razlike (x, y, radius — sve 0–1):
       </p>
       {state.differences.map((d, i) => (
@@ -413,7 +413,7 @@ function FieldsSD({ state, set }: { state: SDState; set: (s: SDState) => void })
                 set({ ...state, differences: diffs });
               }}
               placeholder={k}
-              className="w-20 rounded bg-white/10 px-2 py-1 text-sm outline-none"
+              className="input-field w-20 py-1 text-sm"
             />
           ))}
           <button
@@ -424,7 +424,7 @@ function FieldsSD({ state, set }: { state: SDState; set: (s: SDState) => void })
                 differences: state.differences.filter((_, j) => j !== i),
               })
             }
-            className="text-red-400 hover:text-red-300"
+            className="transition" style={{ color: "var(--red)" }}
           >
             ✕
           </button>
@@ -438,7 +438,7 @@ function FieldsSD({ state, set }: { state: SDState; set: (s: SDState) => void })
             differences: [...state.differences, { x: 0.5, y: 0.5, radius: 0.05 }],
           })
         }
-        className="text-sm text-white/50 hover:text-white"
+        className="text-sm transition" style={{ color: "var(--text-mut)" }}
       >
         + Dodaj razliku
       </button>
@@ -449,12 +449,12 @@ function FieldsSD({ state, set }: { state: SDState; set: (s: SDState) => void })
 function FieldsIO({ state, set }: { state: IOState; set: (s: IOState) => void }) {
   return (
     <div className="space-y-3">
-      <p className="text-sm text-white/70">
+      <p className="text-sm" style={{ color: "var(--text-mut)" }}>
         Slike u točnom redoslijedu — igrač ih dobiva pomiješane.
       </p>
       {state.images.map((img, i) => (
-        <div key={i} className="flex items-start gap-3 rounded-lg border border-white/10 p-3">
-          <span className="mt-1 w-5 flex-shrink-0 text-center text-sm font-bold text-white/40">
+        <div key={i} className="flex items-start gap-3 rounded-[var(--r-tile)] p-3" style={{ border: "1px solid var(--border-soft)" }}>
+          <span className="mt-1 w-5 flex-shrink-0 text-center text-sm font-bold" style={{ color: "var(--text-mut)" }}>
             {i + 1}.
           </span>
           <div className="flex-1">
@@ -473,7 +473,7 @@ function FieldsIO({ state, set }: { state: IOState; set: (s: IOState) => void })
               onClick={() =>
                 set({ images: state.images.filter((_, j) => j !== i) })
               }
-              className="mt-1 text-red-400 hover:text-red-300"
+              className="mt-1 transition" style={{ color: "var(--red)" }}
             >
               ✕
             </button>
@@ -483,7 +483,7 @@ function FieldsIO({ state, set }: { state: IOState; set: (s: IOState) => void })
       <button
         type="button"
         onClick={() => set({ images: [...state.images, ""] })}
-        className="text-sm text-white/50 hover:text-white"
+        className="text-sm transition" style={{ color: "var(--text-mut)" }}
       >
         + Dodaj sliku
       </button>
@@ -496,7 +496,7 @@ function FieldsPZ({ state, set }: { state: PZState; set: (s: PZState) => void })
     <div className="flex gap-6">
       {(["rows", "cols"] as const).map((k) => (
         <label key={k} className="block">
-          <span className="mb-1 block text-sm text-white/70">
+          <span className="mb-1 block text-sm" style={{ color: "var(--text-mut)" }}>
             {k === "rows" ? "Redovi" : "Stupci"}
           </span>
           <input
@@ -505,7 +505,7 @@ function FieldsPZ({ state, set }: { state: PZState; set: (s: PZState) => void })
             max="6"
             value={state[k]}
             onChange={(e) => set({ ...state, [k]: parseInt(e.target.value) })}
-            className="w-20 rounded bg-white/10 px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+            className="input-field w-20 py-1.5 text-sm"
           />
         </label>
       ))}
@@ -516,7 +516,7 @@ function FieldsPZ({ state, set }: { state: PZState; set: (s: PZState) => void })
 function FieldsME({ state, set }: { state: MEState; set: (s: MEState) => void }) {
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-2 gap-2 text-sm text-white/70">
+      <div className="grid grid-cols-2 gap-2 text-sm" style={{ color: "var(--text-mut)" }}>
         <span>Prednja strana</span>
         <span>Stražnja strana</span>
       </div>
@@ -532,7 +532,7 @@ function FieldsME({ state, set }: { state: MEState; set: (s: MEState) => void })
                 set({ pairs });
               }}
               placeholder={k === "front" ? "Pojam..." : "Par..."}
-              className="flex-1 rounded bg-white/10 px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+              className="input-field flex-1 py-1.5 text-sm"
             />
           ))}
           {state.pairs.length > 1 && (
@@ -541,7 +541,7 @@ function FieldsME({ state, set }: { state: MEState; set: (s: MEState) => void })
               onClick={() =>
                 set({ pairs: state.pairs.filter((_, j) => j !== i) })
               }
-              className="text-red-400 hover:text-red-300"
+              className="transition" style={{ color: "var(--red)" }}
             >
               ✕
             </button>
@@ -553,7 +553,7 @@ function FieldsME({ state, set }: { state: MEState; set: (s: MEState) => void })
         onClick={() =>
           set({ pairs: [...state.pairs, { id: uid(), front: "", back: "" }] })
         }
-        className="text-sm text-white/50 hover:text-white"
+        className="text-sm transition" style={{ color: "var(--text-mut)" }}
       >
         + Dodaj par
       </button>
@@ -564,12 +564,12 @@ function FieldsME({ state, set }: { state: MEState; set: (s: MEState) => void })
 function FieldsSE({ state, set }: { state: SEState; set: (s: SEState) => void }) {
   return (
     <div className="space-y-2">
-      <p className="text-sm text-white/70">
+      <p className="text-sm" style={{ color: "var(--text-mut)" }}>
         Stavke u točnom redoslijedu — igrač ih dobiva pomiješane.
       </p>
       {state.items.map((item, i) => (
         <div key={i} className="flex items-center gap-2">
-          <span className="w-6 text-center text-sm text-white/40">{i + 1}.</span>
+          <span className="w-6 text-center text-sm" style={{ color: "var(--text-mut)" }}>{i + 1}.</span>
           <input
             value={item}
             onChange={(e) => {
@@ -578,7 +578,7 @@ function FieldsSE({ state, set }: { state: SEState; set: (s: SEState) => void })
               set({ items });
             }}
             placeholder={`Stavka ${i + 1}`}
-            className="flex-1 rounded bg-white/10 px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+            className="input-field flex-1 py-1.5 text-sm"
           />
           {state.items.length > 2 && (
             <button
@@ -586,7 +586,7 @@ function FieldsSE({ state, set }: { state: SEState; set: (s: SEState) => void })
               onClick={() =>
                 set({ items: state.items.filter((_, j) => j !== i) })
               }
-              className="text-red-400 hover:text-red-300"
+              className="transition" style={{ color: "var(--red)" }}
             >
               ✕
             </button>
@@ -596,7 +596,7 @@ function FieldsSE({ state, set }: { state: SEState; set: (s: SEState) => void })
       <button
         type="button"
         onClick={() => set({ items: [...state.items, ""] })}
-        className="text-sm text-white/50 hover:text-white"
+        className="text-sm transition" style={{ color: "var(--text-mut)" }}
       >
         + Dodaj stavku
       </button>
@@ -704,11 +704,12 @@ export default function ChallengeForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Tip izazova */}
       <label className="block">
-        <span className="mb-1 block text-sm text-white/70">Tip izazova</span>
+        <span className="mb-1 block text-sm" style={{ color: "var(--text-mut)" }}>Tip izazova</span>
         <select
           value={type}
           onChange={(e) => handleTypeChange(e.target.value as ChallengeType)}
-          className="rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+          className="input-field py-2 text-sm"
+          style={{ width: "auto" }}
         >
           {Object.entries(TYPE_LABELS).map(([v, label]) => (
             <option key={v} value={v}>
@@ -720,7 +721,7 @@ export default function ChallengeForm({
 
       {/* Zajednička polja */}
       <label className="block">
-        <span className="mb-1 block text-sm text-white/70">
+        <span className="mb-1 block text-sm" style={{ color: "var(--text-mut)" }}>
           Pitanje / zadatak
         </span>
         <textarea
@@ -729,7 +730,7 @@ export default function ChallengeForm({
           rows={3}
           required
           placeholder="Upiši pitanje ili opis zadatka..."
-          className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+          className="input-field"
         />
       </label>
 
@@ -741,12 +742,12 @@ export default function ChallengeForm({
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <label className="block">
-          <span className="mb-1 block text-sm text-white/70">Kategorija</span>
+          <span className="mb-1 block text-sm" style={{ color: "var(--text-mut)" }}>Kategorija</span>
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
             required
-            className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+            className="input-field"
           >
             <option value="">-- odaberi --</option>
             {categories?.map((c) => (
@@ -758,11 +759,11 @@ export default function ChallengeForm({
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-sm text-white/70">Težina</span>
+          <span className="mb-1 block text-sm" style={{ color: "var(--text-mut)" }}>Težina</span>
           <select
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-            className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+            className="input-field"
           >
             {Object.entries(DIFFICULTY_LABELS).map(([v, label]) => (
               <option key={v} value={v}>
@@ -773,19 +774,19 @@ export default function ChallengeForm({
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-sm text-white/70">Bodovi</span>
+          <span className="mb-1 block text-sm" style={{ color: "var(--text-mut)" }}>Bodovi</span>
           <input
             type="number"
             min={1}
             max={1000}
             value={basePoints}
             onChange={(e) => setBasePoints(parseInt(e.target.value))}
-            className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+            className="input-field"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-sm text-white/70">
+          <span className="mb-1 block text-sm" style={{ color: "var(--text-mut)" }}>
             Vremenski limit (s)
           </span>
           <input
@@ -794,14 +795,14 @@ export default function ChallengeForm({
             max={300}
             value={timeLimitSec}
             onChange={(e) => setTimeLimitSec(parseInt(e.target.value))}
-            className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+            className="input-field"
           />
         </label>
       </div>
 
       {/* Tip-specifični dio */}
-      <div className="rounded-xl border border-white/20 p-5">
-        <p className="mb-4 text-sm font-semibold text-[hsl(280,100%,70%)]">
+      <div className="glass rounded-[var(--r-card)] p-5" style={{ border: "1px solid var(--border-hi)" }}>
+        <p className="mb-4 text-sm font-semibold" style={{ color: "var(--powder)" }}>
           {TYPE_LABELS[type]}
         </p>
         {type === "MULTIPLE_CHOICE" && (
@@ -861,21 +862,13 @@ export default function ChallengeForm({
         )}
       </div>
 
-      {err && <p className="text-sm text-red-400">{err.message}</p>}
+      {err && <p className="text-sm" style={{ color: "var(--red)" }}>{err.message}</p>}
 
       <div className="flex gap-3">
-        <button
-          type="submit"
-          disabled={busy}
-          className="rounded-full bg-[hsl(280,100%,70%)] px-8 py-2.5 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-50"
-        >
+        <button type="submit" disabled={busy} className="btn-primary px-8 py-2.5 text-sm disabled:opacity-50">
           {busy ? "Spremanje..." : existing ? "Spremi izmjene" : "Kreiraj izazov"}
         </button>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="rounded-full bg-white/10 px-8 py-2.5 text-sm font-semibold transition hover:bg-white/20"
-        >
+        <button type="button" onClick={() => router.back()} className="btn-secondary px-8 py-2.5 text-sm">
           Odustani
         </button>
       </div>

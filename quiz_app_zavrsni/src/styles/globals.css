@@ -1,51 +1,209 @@
 @import "tailwindcss";
 
+/* ── Tailwind v4 tokeni ──────────────────────────────────────────────────────*/
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --color-navy:   #1d3557;
+  --color-cream:  #f1faee;
+  --color-powder: #a8dadc;
+  --color-steel:  #457b9d;
+  --color-red:    #e63946;
+  --color-green:  #2a9d8f;
+
+  --radius-card: 22px;
+  --radius-tile: 16px;
 }
 
-/* ── Feedback animacije (GameScreen) ─────────────────────────────────────── */
+/* ── CSS primitives ──────────────────────────────────────────────────────────*/
+:root {
+  --navy:        #1d3557;
+  --navy-deep:   #142844;
+  --navy-deeper: #0e1c30;
+  --cream:       #f1faee;
+  --powder:      #a8dadc;
+  --steel:       #457b9d;
+  --red:         #e63946;
+  --green:       #2a9d8f;
 
-@media (prefers-reduced-motion: no-preference) {
-  @keyframes feedback-pop {
-    0%   { opacity: 0; transform: scale(0.85) translateY(8px); }
-    60%  { transform: scale(1.04) translateY(-2px); }
-    100% { opacity: 1; transform: scale(1) translateY(0); }
+  --glass:        rgba(241, 250, 238, 0.045);
+  --glass-strong: rgba(241, 250, 238, 0.07);
+  --border-soft:  rgba(168, 218, 220, 0.14);
+  --border-hi:    rgba(168, 218, 220, 0.38);
+  --text-mut:     rgba(241, 250, 238, 0.58);
+
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --shadow-card:  0 18px 44px rgba(14, 28, 48, 0.4);
+  --shadow-hover: 0 16px 34px rgba(14, 28, 48, 0.55);
+}
+
+/* ── Body (zamjenjuje stare bg-[#15162c] / from-[#2e026d]) ──────────────────*/
+body {
+  color: var(--cream);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  background:
+    radial-gradient(620px 420px at 12% -8%, rgba(230, 57, 70, 0.16), transparent 60%),
+    radial-gradient(680px 520px at 100% 110%, rgba(168, 218, 220, 0.12), transparent 60%),
+    linear-gradient(158deg, var(--navy) 0%, var(--navy-deep) 55%, var(--navy-deeper) 100%);
+  background-attachment: fixed;
+}
+
+/* ── Utility komponente ──────────────────────────────────────────────────────*/
+@layer components {
+  .glass {
+    background: var(--glass);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-lg);
+    backdrop-filter: blur(12px);
+  }
+  .glass-strong {
+    background: var(--glass-strong);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-md);
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: var(--glass);
+    border: 1px solid var(--border-soft);
+    color: var(--text-mut);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+  .pill b { color: var(--cream); font-weight: 800; }
+
+  .hoverable {
+    transition:
+      transform 0.2s var(--ease),
+      box-shadow 0.2s var(--ease),
+      border-color 0.2s var(--ease),
+      background 0.2s var(--ease);
+  }
+  .hoverable:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-hi);
+    box-shadow: 0 0 0 1px var(--border-hi), 0 6px 10px rgba(14, 28, 48, 0.28);
+  }
+  .hoverable:active { transform: translateY(0) scale(0.98); }
+
+  :where(button, a):focus-visible {
+    outline: 2px solid var(--powder);
+    outline-offset: 3px;
   }
 
-  @keyframes feedback-shake {
+  /* Input stilovi */
+  .input-field {
+    width: 100%;
+    border-radius: var(--r-sm);
+    background: var(--glass-strong);
+    border: 1px solid var(--border-soft);
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--cream);
+    outline: none;
+    transition: border-color 0.18s var(--ease);
+  }
+  .input-field::placeholder { color: var(--text-mut); }
+  .input-field:focus { border-color: var(--powder); }
+
+  /* CTA gumb */
+  .btn-primary {
+    border-radius: 999px;
+    background: var(--red);
+    color: var(--cream);
+    padding: 11px 28px;
+    font-weight: 700;
+    font-size: 14px;
+    transition: opacity 0.18s var(--ease), box-shadow 0.18s var(--ease), transform 0.18s var(--ease);
+    cursor: pointer;
+    border: none;
+  }
+  .btn-primary:hover {
+    opacity: 0.92;
+    box-shadow: 0 0 24px rgba(230, 57, 70, 0.4);
+    transform: translateY(-2px);
+  }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.45; cursor: default; transform: none; box-shadow: none; }
+
+  .btn-secondary {
+    border-radius: 999px;
+    background: var(--glass);
+    border: 1px solid var(--border-soft);
+    color: var(--cream);
+    padding: 11px 28px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background 0.18s var(--ease), border-color 0.18s var(--ease), transform 0.18s var(--ease);
+    cursor: pointer;
+  }
+  .btn-secondary:hover {
+    background: var(--glass-strong);
+    border-color: var(--border-hi);
+    transform: translateY(-1px);
+  }
+  .btn-secondary:active { transform: scale(0.98); }
+  .btn-secondary:disabled { opacity: 0.45; cursor: default; }
+}
+
+/* ── Animacije ───────────────────────────────────────────────────────────────*/
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes pop {
+    0%   { transform: scale(1); }
+    45%  { transform: scale(1.035); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
     0%, 100% { transform: translateX(0); }
     20%       { transform: translateX(-7px); }
     40%       { transform: translateX(7px); }
-    60%       { transform: translateX(-5px); }
-    80%       { transform: translateX(5px); }
+    60%       { transform: translateX(-4px); }
+    80%       { transform: translateX(4px); }
   }
-
+  @keyframes dotpulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.75); }
+  }
   @keyframes streak-pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50%       { opacity: 0.75; transform: scale(1.12); }
   }
-
   @keyframes score-bump {
     0%   { transform: scale(1); }
-    40%  { transform: scale(1.25); }
+    40%  { transform: scale(1.22); }
     100% { transform: scale(1); }
   }
 
-  .animate-feedback-correct {
-    animation: feedback-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  }
+  .anim-rise { opacity: 0; animation: rise 0.6s var(--ease) forwards; }
+  .anim-d1 { animation-delay: 0.04s; }
+  .anim-d2 { animation-delay: 0.12s; }
+  .anim-d3 { animation-delay: 0.20s; }
+  .anim-d4 { animation-delay: 0.28s; }
 
-  .animate-feedback-wrong {
-    animation: feedback-shake 0.45s ease both;
-  }
+  .anim-pop   { animation: pop   0.4s var(--ease); }
+  .anim-shake { animation: shake 0.4s var(--ease); }
 
-  .animate-streak-pulse {
-    animation: streak-pulse 0.6s ease-in-out;
-  }
+  /* Feedback overlay (GameScreen) */
+  .animate-feedback-correct { animation: pop   0.35s var(--ease) both; }
+  .animate-feedback-wrong   { animation: shake 0.45s var(--ease) both; }
+  .animate-streak-pulse     { animation: streak-pulse 0.6s ease-in-out; }
+  .animate-score-bump       { animation: score-bump   0.35s var(--ease) both; }
 
-  .animate-score-bump {
-    animation: score-bump 0.35s ease both;
-  }
+  /* Live dot */
+  .live-dot { animation: dotpulse 1.5s ease-in-out infinite; }
 }

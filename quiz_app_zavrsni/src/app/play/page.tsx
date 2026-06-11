@@ -13,19 +13,25 @@ export default function PlayPage() {
   });
 
   return (
-    <main className="min-h-screen bg-[#15162c] text-white">
+    <main className="min-h-screen">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Odaberi kviz</h1>
-          <Link href="/" className="text-sm text-white/50 hover:text-white transition">
+          <h1 className="text-3xl font-bold" style={{ color: "var(--cream)" }}>Odaberi kviz</h1>
+          <Link
+            href="/"
+            className="text-sm transition"
+            style={{ color: "var(--text-mut)" }}
+            onMouseOver={(e) => (e.currentTarget.style.color = "var(--cream)")}
+            onMouseOut={(e) => (e.currentTarget.style.color = "var(--text-mut)")}
+          >
             ← Natrag
           </Link>
         </div>
 
-        {isLoading && <p className="text-white/50">Učitavanje...</p>}
+        {isLoading && <p style={{ color: "var(--text-mut)" }}>Učitavanje...</p>}
 
         {!isLoading && quizzes?.length === 0 && (
-          <p className="text-white/50">
+          <p style={{ color: "var(--text-mut)" }}>
             Nema dostupnih kvizova. Administrator još nije objavio nijedan.
           </p>
         )}
@@ -34,23 +40,23 @@ export default function PlayPage() {
           {quizzes?.map((quiz) => (
             <div
               key={quiz.id}
-              className="flex flex-col justify-between rounded-xl bg-white/10 p-6 transition hover:bg-white/[0.15]"
+              className="glass hoverable flex flex-col justify-between rounded-[var(--r-card)] p-6 transition"
             >
               <div className="mb-4">
-                <h3 className="text-xl font-bold">{quiz.title}</h3>
+                <h3 className="text-xl font-bold" style={{ color: "var(--cream)" }}>{quiz.title}</h3>
                 {quiz.categories && quiz.categories.length > 0 && (
-                  <p className="mt-0.5 text-sm text-white/50">
+                  <p className="mt-0.5 text-sm" style={{ color: "var(--text-mut)" }}>
                     {quiz.categories.map((c) => c.name).join(", ")}
                   </p>
                 )}
-                <p className="mt-3 text-sm text-white/60">
+                <p className="mt-3 text-sm" style={{ color: "var(--text-mut)" }}>
                   {quiz._count.quizChallenges} izazova
                 </p>
               </div>
               <button
                 onClick={() => startSession.mutate({ quizId: quiz.id })}
                 disabled={startSession.isPending}
-                className="w-full rounded-full bg-[hsl(280,100%,70%)] py-2.5 font-semibold text-black transition hover:opacity-90 disabled:opacity-50"
+                className="btn-primary w-full py-2.5 disabled:opacity-50"
               >
                 {startSession.isPending ? "Pokretanje..." : "Igraj →"}
               </button>

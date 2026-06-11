@@ -6,32 +6,26 @@ interface Props {
 }
 
 export default function TrueFalse({ onSubmit, disabled }: Props) {
-  const options = [
-    {
-      value: true,
-      label: "✓  Točno",
-      cls: "border-green-500/50 bg-green-500/10 hover:bg-green-500/25",
-    },
-    {
-      value: false,
-      label: "✗  Netočno",
-      cls: "border-red-500/50 bg-red-500/10 hover:bg-red-500/25",
-    },
-  ];
-
   return (
-    <div className="flex gap-4">
-      {options.map(({ value, label, cls }) => (
-        <button
-          key={String(value)}
-          type="button"
-          onClick={() => !disabled && onSubmit({ value })}
-          disabled={disabled}
-          className={`flex-1 rounded-xl border py-10 text-xl font-bold transition ${cls} disabled:cursor-default disabled:opacity-50`}
-        >
-          {label}
-        </button>
-      ))}
+    <div className="flex gap-3">
+      <button
+        type="button"
+        onClick={() => !disabled && onSubmit({ value: true })}
+        disabled={disabled}
+        className="hoverable flex-1 rounded-[var(--r-md)] py-10 text-xl font-bold disabled:cursor-default disabled:opacity-50"
+        style={{ background: "rgba(42,157,143,0.12)", border: "1px solid rgba(42,157,143,0.45)", color: "var(--green)" }}
+      >
+        ✓ Točno
+      </button>
+      <button
+        type="button"
+        onClick={() => !disabled && onSubmit({ value: false })}
+        disabled={disabled}
+        className="hoverable flex-1 rounded-[var(--r-md)] py-10 text-xl font-bold disabled:cursor-default disabled:opacity-50"
+        style={{ background: "rgba(230,57,70,0.10)", border: "1px solid rgba(230,57,70,0.40)", color: "var(--red)" }}
+      >
+        ✗ Netočno
+      </button>
     </div>
   );
 }

@@ -8,18 +8,13 @@ interface Props {
   disabled: boolean;
 }
 
-interface Item {
-  text: string;
-  originalIndex: number;
-}
+interface Item { text: string; originalIndex: number; }
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    const tmp = a[i]!;
-    a[i] = a[j]!;
-    a[j] = tmp;
+    [a[i], a[j]] = [a[j]!, a[i]!];
   }
   return a;
 }
@@ -43,62 +38,53 @@ export default function Sequence({ items, onSubmit, disabled }: Props) {
 
   function handleClick(idx: number) {
     if (disabled) return;
-    if (selected === null) {
-      setSelected(idx);
-      return;
-    }
-    if (selected === idx) {
-      setSelected(null);
-      return;
-    }
+    if (selected === null) { setSelected(idx); return; }
+    if (selected === idx) { setSelected(null); return; }
     const next = [...ordered];
-    const a = next[selected]!;
-    const b = next[idx]!;
-    next[selected] = b;
-    next[idx] = a;
+    [next[selected], next[idx]] = [next[idx]!, next[selected]!];
     setOrdered(next);
     setSelected(null);
   }
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-white/60">
+      <p className="text-sm" style={{ color: "var(--text-mut)" }}>
         Klikni stavku pa klikni na željenu poziciju da ih zamijeniš
       </p>
-
       <div className="flex flex-col gap-2">
-        {ordered.map((item, idx) => (
-          <div
-            key={item.originalIndex}
-            onClick={() => handleClick(idx)}
-            className={`flex cursor-pointer items-center gap-3 rounded-xl border-2 px-4 py-3 transition ${
-              selected === idx
-                ? "border-[hsl(280,100%,70%)] bg-[hsl(280,100%,70%)]/10"
-                : "border-white/10 hover:border-white/30 hover:bg-white/5"
-            } ${disabled ? "cursor-default opacity-60" : ""}`}
-          >
-            {/* Broj pozicije */}
-            <span
-              className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                selected === idx
-                  ? "bg-[hsl(280,100%,70%)] text-black"
-                  : "bg-white/10 text-white/60"
-              }`}
+        {ordered.map((item, idx) => {
+          const isSelected = selected === idx;
+          return (
+            <div
+              key={item.originalIndex}
+              onClick={() => handleClick(idx)}
+              className={`hoverable flex cursor-pointer items-center gap-3 rounded-[var(--r-md)] px-4 py-3 transition ${disabled ? "cursor-default opacity-60" : ""}`}
+              style={{
+                background: isSelected ? "rgba(230,57,70,0.12)" : "var(--glass-strong)",
+                border: isSelected ? "1px solid rgba(230,57,70,0.5)" : "1px solid var(--border-soft)",
+              }}
             >
-              {idx + 1}
-            </span>
-            <span className="flex-1 text-sm font-medium">{item.text}</span>
-            {selected === idx && (
-              <span className="text-xs text-[hsl(280,100%,70%)]">↕ odabrano</span>
-            )}
-          </div>
-        ))}
+              <span
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                style={{
+                  background: isSelected ? "var(--red)" : "rgba(168,218,220,0.12)",
+                  color: isSelected ? "var(--cream)" : "var(--powder)",
+                }}
+              >
+                {idx + 1}
+              </span>
+              <span className="flex-1 text-sm font-medium text-cream">{item.text}</span>
+              {isSelected && (
+                <span className="text-xs font-semibold" style={{ color: "var(--powder)" }}>↕ odabrano</span>
+              )}
+            </div>
+          );
+        })}
       </div>
-
       <button
         onClick={() => onSubmit({ order: ordered.map((i) => i.originalIndex) })}
         disabled={disabled}
-        className="mt-2 rounded-full bg-[hsl(280,100%,70%)] py-2.5 font-semibold text-black transition hover:opacity-90 disabled:opacity-40"
+        className="btn-primary mt-1 w-full py-3"
       >
         Potvrdi redoslijed
       </button>

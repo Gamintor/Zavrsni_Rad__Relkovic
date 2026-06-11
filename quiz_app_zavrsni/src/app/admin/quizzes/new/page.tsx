@@ -23,7 +23,7 @@ export default function NewQuizPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-3xl font-bold">Novi kviz</h1>
+      <h1 className="mb-6 text-3xl font-bold" style={{ color: "var(--cream)" }}>Novi kviz</h1>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -36,28 +36,26 @@ export default function NewQuizPage() {
         className="max-w-lg space-y-4"
       >
         <label className="block">
-          <span className="mb-1 block text-sm text-white/70">Naziv kviza</span>
+          <span className="mb-1 block text-sm" style={{ color: "var(--text-mut)" }}>Naziv kviza</span>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
             placeholder="npr. Opće znanje — teška razina"
-            className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+            className="input-field"
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-sm text-white/70">
-            Opis (opcionalno)
-          </span>
+          <span className="mb-1 block text-sm" style={{ color: "var(--text-mut)" }}>Opis (opcionalno)</span>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+            className="input-field"
           />
         </label>
         <fieldset className="block">
-          <legend className="mb-2 text-sm text-white/70">
+          <legend className="mb-2 text-sm" style={{ color: "var(--text-mut)" }}>
             Kategorije (opcionalno, više je moguće)
           </legend>
           {categories && categories.length > 0 ? (
@@ -69,11 +67,12 @@ export default function NewQuizPage() {
                     key={c.id}
                     type="button"
                     onClick={() => toggleCategory(c.id)}
-                    className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                    className="pill text-xs font-semibold transition"
+                    style={
                       checked
-                        ? "bg-[hsl(280,100%,70%)] text-black"
-                        : "bg-white/10 text-white/70 hover:bg-white/20"
-                    }`}
+                        ? { background: "var(--powder)", color: "var(--navy)" }
+                        : { background: "var(--glass-strong)", color: "var(--text-mut)", border: "1px solid var(--border-soft)" }
+                    }
                   >
                     {c.name}
                   </button>
@@ -81,24 +80,24 @@ export default function NewQuizPage() {
               })}
             </div>
           ) : (
-            <p className="text-sm text-white/40">Nema kategorija.</p>
+            <p className="text-sm" style={{ color: "var(--text-mut)" }}>Nema kategorija.</p>
           )}
         </fieldset>
         {create.error && (
-          <p className="text-sm text-red-400">{create.error.message}</p>
+          <p className="text-sm" style={{ color: "var(--red)" }}>{create.error.message}</p>
         )}
         <div className="flex gap-3">
           <button
             type="submit"
             disabled={create.isPending}
-            className="rounded-full bg-[hsl(280,100%,70%)] px-8 py-2.5 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-50"
+            className="btn-primary px-8 py-2.5 text-sm disabled:opacity-50"
           >
             {create.isPending ? "Kreiranje..." : "Kreiraj i dodaj izazove →"}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="rounded-full bg-white/10 px-8 py-2.5 text-sm font-semibold transition hover:bg-white/20"
+            className="btn-secondary px-8 py-2.5 text-sm"
           >
             Odustani
           </button>

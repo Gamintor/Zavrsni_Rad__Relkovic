@@ -14,34 +14,39 @@ export default function CreateRoomPage() {
   const createRoom = api.room.create.useMutation({
     onSuccess: ({ code }) => router.push(`/multiplayer/${code}`),
   });
-
   const joinRoom = api.room.join.useMutation({
     onSuccess: ({ code }) => router.push(`/multiplayer/${code}`),
   });
 
   return (
-    <main className="min-h-screen bg-[#15162c] text-white">
+    <main className="min-h-screen">
       <div className="container mx-auto max-w-lg px-4 py-12">
         <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Multiplayer</h1>
-          <Link href="/" className="text-sm text-white/50 transition hover:text-white">
+          <h1 className="text-3xl font-bold" style={{ color: "var(--cream)" }}>Multiplayer</h1>
+          <Link
+            href="/"
+            className="text-sm transition"
+            style={{ color: "var(--text-mut)" }}
+            onMouseOver={(e) => (e.currentTarget.style.color = "var(--cream)")}
+            onMouseOut={(e) => (e.currentTarget.style.color = "var(--text-mut)")}
+          >
             ← Natrag
           </Link>
         </div>
 
         {/* Kreiraj sobu */}
-        <div className="mb-6 rounded-2xl bg-white/10 p-6">
-          <h2 className="mb-4 text-lg font-semibold">Kreiraj novu sobu</h2>
-          {isLoading && <p className="text-sm text-white/50">Učitavanje kvizova...</p>}
+        <div className="glass mb-6 rounded-[var(--r-card)] p-6">
+          <h2 className="mb-4 text-lg font-semibold" style={{ color: "var(--cream)" }}>Kreiraj novu sobu</h2>
+          {isLoading && <p className="text-sm" style={{ color: "var(--text-mut)" }}>Učitavanje kvizova...</p>}
           {!isLoading && quizzes?.length === 0 && (
-            <p className="text-sm text-white/50">Nema dostupnih kvizova.</p>
+            <p className="text-sm" style={{ color: "var(--text-mut)" }}>Nema dostupnih kvizova.</p>
           )}
           {(quizzes?.length ?? 0) > 0 && (
             <div className="space-y-3">
               <select
                 value={selectedQuiz}
                 onChange={(e) => setSelectedQuiz(e.target.value)}
-                className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+                className="input-field"
               >
                 <option value="">Odaberi kviz...</option>
                 {quizzes?.map((q) => (
@@ -53,20 +58,20 @@ export default function CreateRoomPage() {
               <button
                 onClick={() => createRoom.mutate({ quizId: selectedQuiz })}
                 disabled={!selectedQuiz || createRoom.isPending}
-                className="w-full rounded-full bg-[hsl(280,100%,70%)] py-3 font-semibold text-black transition hover:opacity-90 disabled:opacity-40"
+                className="btn-primary w-full py-3 disabled:opacity-40"
               >
                 {createRoom.isPending ? "Kreiranje..." : "Kreiraj sobu"}
               </button>
               {createRoom.error && (
-                <p className="text-sm text-red-400">{createRoom.error.message}</p>
+                <p className="text-sm" style={{ color: "var(--red)" }}>{createRoom.error.message}</p>
               )}
             </div>
           )}
         </div>
 
         {/* Pridruži se sobi */}
-        <div className="rounded-2xl bg-white/10 p-6">
-          <h2 className="mb-4 text-lg font-semibold">Pridruži se sobi</h2>
+        <div className="glass rounded-[var(--r-card)] p-6">
+          <h2 className="mb-4 text-lg font-semibold" style={{ color: "var(--cream)" }}>Pridruži se sobi</h2>
           <div className="space-y-3">
             <input
               type="text"
@@ -74,17 +79,17 @@ export default function CreateRoomPage() {
               value={joinCode}
               onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
               maxLength={6}
-              className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm uppercase tracking-widest outline-none placeholder:normal-case placeholder:tracking-normal focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+              className="input-field uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal"
             />
             <button
               onClick={() => joinRoom.mutate({ code: joinCode })}
               disabled={joinCode.length < 4 || joinRoom.isPending}
-              className="w-full rounded-full bg-white/20 py-3 font-semibold transition hover:bg-white/30 disabled:opacity-40"
+              className="btn-secondary w-full py-3 disabled:opacity-40"
             >
               {joinRoom.isPending ? "Pridruživanje..." : "Pridruži se"}
             </button>
             {joinRoom.error && (
-              <p className="text-sm text-red-400">{joinRoom.error.message}</p>
+              <p className="text-sm" style={{ color: "var(--red)" }}>{joinRoom.error.message}</p>
             )}
           </div>
         </div>

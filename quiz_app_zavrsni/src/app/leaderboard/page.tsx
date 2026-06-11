@@ -16,11 +16,18 @@ export default function LeaderboardPage() {
   const board = selectedQuiz ? quizBoard : global;
 
   return (
-    <main className="min-h-screen bg-[#15162c] text-white">
+    <main className="min-h-screen">
       <div className="container mx-auto max-w-2xl px-4 py-12">
+
         <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Ljestvica</h1>
-          <Link href="/" className="text-sm text-white/50 hover:text-white transition">
+          <h1 className="text-3xl font-bold" style={{ color: "var(--cream)" }}>Ljestvica</h1>
+          <Link
+            href="/"
+            className="text-sm transition"
+            style={{ color: "var(--text-mut)" }}
+            onMouseOver={(e) => (e.currentTarget.style.color = "var(--cream)")}
+            onMouseOut={(e) => (e.currentTarget.style.color = "var(--text-mut)")}
+          >
             ← Natrag
           </Link>
         </div>
@@ -30,7 +37,8 @@ export default function LeaderboardPage() {
           <select
             value={selectedQuiz}
             onChange={(e) => setSelectedQuiz(e.target.value)}
-            className="rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+            className="input-field py-2 text-sm"
+            style={{ width: "auto", minWidth: "220px" }}
           >
             <option value="">Globalno (svi kvizovi)</option>
             {quizzes?.map((q) => (
@@ -41,19 +49,19 @@ export default function LeaderboardPage() {
           </select>
         </div>
 
-        {isLoading && <p className="text-white/50">Učitavanje...</p>}
+        {isLoading && <p style={{ color: "var(--text-mut)" }}>Učitavanje...</p>}
 
         {board && board.length === 0 && (
-          <p className="text-white/50">Još nema rezultata.</p>
+          <p style={{ color: "var(--text-mut)" }}>Još nema rezultata.</p>
         )}
 
         {board && board.length > 0 && (
-          <div className="overflow-hidden rounded-xl border border-white/10">
+          <div className="glass overflow-hidden rounded-[var(--r-card)]">
             <table className="w-full text-sm">
-              <thead className="bg-white/5">
-                <tr>
+              <thead>
+                <tr style={{ background: "var(--glass-strong)" }}>
                   {["#", "Igrač", "Kviz", "Bodovi"].map((h) => (
-                    <th key={h} className="p-3 text-left font-medium text-white/70">
+                    <th key={h} className="p-3 text-left font-medium" style={{ color: "var(--text-mut)" }}>
                       {h}
                     </th>
                   ))}
@@ -63,25 +71,28 @@ export default function LeaderboardPage() {
                 {board.map((entry, i) => (
                   <tr
                     key={entry.id}
-                    className="border-t border-white/10 hover:bg-white/5"
+                    className="transition"
+                    style={{ borderTop: "1px solid var(--border-soft)" }}
+                    onMouseOver={(e) => (e.currentTarget.style.background = "var(--glass-strong)")}
+                    onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}
                   >
                     <td className="w-10 p-3 text-center">
                       {i === 0 && "🥇"}
                       {i === 1 && "🥈"}
                       {i === 2 && "🥉"}
                       {i > 2 && (
-                        <span className="font-bold text-white/40">{i + 1}.</span>
+                        <span className="font-bold" style={{ color: "var(--text-mut)" }}>{i + 1}.</span>
                       )}
                     </td>
-                    <td className="p-3 font-medium">
+                    <td className="p-3 font-medium" style={{ color: "var(--cream)" }}>
                       {entry.user.name ?? "Anonimni igrač"}
                     </td>
-                    <td className="p-3 text-white/60">
+                    <td className="p-3" style={{ color: "var(--text-mut)" }}>
                       {"quiz" in entry
                         ? (entry.quiz as { title: string }).title
                         : "—"}
                     </td>
-                    <td className="p-3 font-bold text-[hsl(280,100%,70%)]">
+                    <td className="p-3 font-bold" style={{ color: "var(--powder)" }}>
                       {entry.totalScore}
                     </td>
                   </tr>

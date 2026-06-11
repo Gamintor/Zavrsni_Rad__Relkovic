@@ -24,13 +24,9 @@ export default function TextInput({ onSubmit, disabled }: Props) {
         disabled={disabled}
         placeholder="Upiši odgovor..."
         autoFocus
-        className="w-full rounded-xl bg-white/10 px-5 py-4 text-lg outline-none focus:ring-2 focus:ring-[hsl(280,100%,70%)] disabled:opacity-50"
+        className="input-field py-4 text-lg disabled:opacity-50"
       />
-      <button
-        type="submit"
-        disabled={disabled ?? !text.trim()}
-        className="w-full rounded-full bg-[hsl(280,100%,70%)] py-3 font-semibold text-black transition hover:opacity-90 disabled:opacity-40"
-      >
+      <button type="submit" disabled={disabled ?? !text.trim()} className="btn-primary w-full py-3">
         Potvrdi odgovor
       </button>
     </form>

@@ -21,16 +21,16 @@ export default function VisualClick({ mediaUrl, onSubmit, disabled }: Props) {
   }
 
   if (!mediaUrl) {
-    return <p className="text-sm text-white/50">Slika nije dostupna za ovaj izazov.</p>;
+    return <p className="text-sm" style={{ color: "var(--text-mut)" }}>Slika nije dostupna za ovaj izazov.</p>;
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-white/60">Klikni na traženo mjesto na slici</p>
+      <p className="text-sm" style={{ color: "var(--text-mut)" }}>Klikni na traženo mjesto na slici</p>
 
       {/* Klikabilna slika s markerom */}
       <div
-        className="relative cursor-crosshair overflow-hidden rounded-xl"
+        className="relative cursor-crosshair overflow-hidden rounded-[var(--r-md)]"
         onClick={handleClick}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -38,7 +38,7 @@ export default function VisualClick({ mediaUrl, onSubmit, disabled }: Props) {
           ref={imgRef}
           src={mediaUrl}
           alt="Klikni na sliku"
-          className="w-full select-none rounded-xl"
+          className="w-full select-none rounded-[var(--r-md)]"
           draggable={false}
         />
         {clicked && (
@@ -51,9 +51,9 @@ export default function VisualClick({ mediaUrl, onSubmit, disabled }: Props) {
             }}
           >
             {/* Vanjski prsten */}
-            <div className="h-8 w-8 rounded-full border-2 border-white/60 bg-transparent" />
+            <div className="h-8 w-8 rounded-full border-2 bg-transparent" style={{ borderColor: "rgba(230,57,70,0.7)" }} />
             {/* Unutarnji punkt */}
-            <div className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[hsl(280,100%,70%)]" style={{ transform: "translate(-50%, -50%)" }} />
+            <div className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ background: "var(--red)", transform: "translate(-50%, -50%)" }} />
           </div>
         )}
       </div>
@@ -61,7 +61,7 @@ export default function VisualClick({ mediaUrl, onSubmit, disabled }: Props) {
       <button
         onClick={() => clicked && onSubmit({ x: clicked.x, y: clicked.y })}
         disabled={disabled || !clicked}
-        className="rounded-full bg-[hsl(280,100%,70%)] py-2.5 font-semibold text-black transition hover:opacity-90 disabled:opacity-40"
+        className="btn-primary w-full py-3"
       >
         {clicked ? "Potvrdi odabir" : "Klikni na sliku"}
       </button>

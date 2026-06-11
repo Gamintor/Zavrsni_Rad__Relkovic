@@ -17,29 +17,39 @@ export default function MultipleChoice({ options, onSubmit, disabled }: Props) {
   }
 
   return (
-    <div className="space-y-3">
-      {options.map((opt, i) => (
-        <button
-          key={i}
-          type="button"
-          onClick={() => toggle(i)}
-          disabled={disabled}
-          className={`w-full rounded-xl px-5 py-4 text-left text-base font-medium transition ${
-            selected.includes(i)
-              ? "bg-[hsl(280,100%,70%)]/25 ring-2 ring-[hsl(280,100%,70%)]"
-              : "bg-white/10 hover:bg-white/20"
-          } disabled:cursor-default`}
-        >
-          <span className="mr-3 font-mono text-sm text-white/40">
-            {String.fromCharCode(65 + i)}.
-          </span>
-          {opt}
-        </button>
-      ))}
+    <div className="space-y-2.5">
+      {options.map((opt, i) => {
+        const isSelected = selected.includes(i);
+        return (
+          <button
+            key={i}
+            type="button"
+            onClick={() => toggle(i)}
+            disabled={disabled}
+            className="hoverable flex w-full items-center gap-4 rounded-[var(--r-md)] px-4 py-3.5 text-left text-base font-semibold text-cream transition disabled:cursor-default"
+            style={{
+              background: isSelected ? "rgba(230,57,70,0.14)" : "var(--glass-strong)",
+              border: isSelected ? "1px solid rgba(230,57,70,0.55)" : "1px solid var(--border-soft)",
+            }}
+          >
+            <span
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] text-xs font-extrabold transition"
+              style={{
+                background: isSelected ? "var(--red)" : "rgba(168,218,220,0.12)",
+                border: isSelected ? "1px solid var(--red)" : "1px solid var(--border-soft)",
+                color: isSelected ? "var(--cream)" : "var(--powder)",
+              }}
+            >
+              {String.fromCharCode(65 + i)}
+            </span>
+            {opt}
+          </button>
+        );
+      })}
       <button
         onClick={() => !disabled && selected.length > 0 && onSubmit({ indices: selected })}
         disabled={disabled ?? selected.length === 0}
-        className="mt-2 w-full rounded-full bg-[hsl(280,100%,70%)] py-3 font-semibold text-black transition hover:opacity-90 disabled:opacity-40"
+        className="btn-primary mt-2 w-full py-3"
       >
         Potvrdi odgovor
       </button>

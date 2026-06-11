@@ -14,9 +14,15 @@ export default function AdminNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex w-52 shrink-0 flex-col border-r border-white/10 p-5">
-      <p className="mb-6 text-sm font-bold tracking-widest text-[hsl(280,100%,70%)] uppercase">
-        Admin
+    <nav
+      className="flex w-52 shrink-0 flex-col p-5"
+      style={{ borderRight: "1px solid var(--border-soft)", background: "var(--glass)" }}
+    >
+      <p
+        className="mb-6 text-xs font-bold tracking-widest uppercase"
+        style={{ color: "var(--powder)" }}
+      >
+        Admin Panel
       </p>
       <ul className="space-y-0.5">
         {links.map(({ href, label, exact }) => {
@@ -25,9 +31,13 @@ export default function AdminNav() {
             <li key={href}>
               <Link
                 href={href}
-                className={`block rounded px-3 py-2 text-sm transition hover:bg-white/10 ${
-                  active ? "bg-white/10 font-semibold" : "text-white/70"
-                }`}
+                className="block rounded-[var(--r-tile)] px-3 py-2 text-sm transition"
+                style={{
+                  background: active ? "var(--glass-strong)" : "transparent",
+                  color: active ? "var(--cream)" : "var(--text-mut)",
+                  fontWeight: active ? "600" : "400",
+                  borderLeft: active ? "2px solid var(--powder)" : "2px solid transparent",
+                }}
               >
                 {label}
               </Link>
@@ -35,10 +45,11 @@ export default function AdminNav() {
           );
         })}
       </ul>
-      <div className="mt-auto border-t border-white/10 pt-4">
+      <div className="mt-auto pt-4" style={{ borderTop: "1px solid var(--border-soft)" }}>
         <Link
           href="/"
-          className="block rounded px-3 py-2 text-sm text-white/50 transition hover:bg-white/10"
+          className="block rounded-[var(--r-tile)] px-3 py-2 text-sm transition"
+          style={{ color: "var(--text-mut)" }}
         >
           ← Natrag na app
         </Link>

@@ -94,6 +94,14 @@ interface RoomState {
 
 const rooms = new Map<string, RoomState>();
 
+export function getActiveRoomCount(): number {
+  let count = 0;
+  for (const room of rooms.values()) {
+    if (room.status !== "FINISHED") count++;
+  }
+  return count;
+}
+
 // ─── Pomoćne funkcije ──────────────────────────────────────────────────────────
 
 function buildLeaderboard(players: Map<string, PlayerState>): LeaderboardEntry[] {

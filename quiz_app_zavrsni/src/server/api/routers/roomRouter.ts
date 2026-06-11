@@ -1,7 +1,8 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
+import { getActiveRoomCount } from "~/server/socket/handler";
 
 type Db = typeof db;
 
@@ -22,6 +23,8 @@ async function uniqueCode(prisma: Db): Promise<string> {
 const userSelect = { id: true, name: true, image: true } as const;
 
 export const roomRouter = createTRPCRouter({
+  getLiveCount: publicProcedure.query(() => ({ count: getActiveRoomCount() })),
+
   create: protectedProcedure
     .input(z.object({ quizId: z.string() }))
     .mutation(async ({ ctx, input }) => {

@@ -8,18 +8,13 @@ interface Props {
   disabled: boolean;
 }
 
-interface Item {
-  url: string;
-  originalIndex: number;
-}
+interface Item { url: string; originalIndex: number; }
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    const tmp = a[i]!;
-    a[i] = a[j]!;
-    a[j] = tmp;
+    [a[i], a[j]] = [a[j]!, a[i]!];
   }
   return a;
 }
@@ -43,69 +38,47 @@ export default function ImageOrder({ images, onSubmit, disabled }: Props) {
 
   function handleItemClick(idx: number) {
     if (disabled) return;
-    if (selected === null) {
-      setSelected(idx);
-      return;
-    }
-    if (selected === idx) {
-      setSelected(null);
-      return;
-    }
-    // Zamijeni pozicije
+    if (selected === null) { setSelected(idx); return; }
+    if (selected === idx) { setSelected(null); return; }
     const next = [...items];
-    const a = next[selected]!;
-    const b = next[idx]!;
-    next[selected] = b;
-    next[idx] = a;
+    [next[selected], next[idx]] = [next[idx]!, next[selected]!];
     setItems(next);
     setSelected(null);
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-white/60">
+      <p className="text-sm" style={{ color: "var(--text-mut)" }}>
         Klikni sliku pa klikni na željenu poziciju da ih zamijeniš
       </p>
-
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {items.map((item, idx) => (
-          <div
-            key={item.originalIndex}
-            onClick={() => handleItemClick(idx)}
-            className={`relative cursor-pointer overflow-hidden rounded-xl border-2 transition ${
-              selected === idx
-                ? "border-[hsl(280,100%,70%)] shadow-lg shadow-[hsl(280,100%,70%)]/30"
-                : "border-white/10 hover:border-white/30"
-            } ${disabled ? "cursor-default opacity-60" : ""}`}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={item.url}
-              alt={`Slika ${idx + 1}`}
-              className="w-full select-none object-cover"
-              draggable={false}
-            />
-            {/* Broj pozicije */}
-            <div className="absolute bottom-0 left-0 right-0 bg-black/50 py-1 text-center text-xs font-bold text-white">
-              {idx + 1}. pozicija
-            </div>
-            {/* Marker odabira */}
-            {selected === idx && (
-              <div className="absolute inset-0 flex items-center justify-center bg-[hsl(280,100%,70%)]/20">
-                <span className="rounded-full bg-[hsl(280,100%,70%)] px-3 py-1 text-xs font-bold text-black">
-                  Odabrano
-                </span>
+        {items.map((item, idx) => {
+          const isSelected = selected === idx;
+          return (
+            <div
+              key={item.originalIndex}
+              onClick={() => handleItemClick(idx)}
+              className={`hoverable relative cursor-pointer overflow-hidden rounded-[var(--r-md)] transition ${disabled ? "cursor-default opacity-60" : ""}`}
+              style={{
+                border: isSelected ? "2px solid var(--red)" : "2px solid var(--border-soft)",
+                boxShadow: isSelected ? "0 0 20px rgba(230,57,70,0.3)" : "none",
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={item.url} alt={`Slika ${idx + 1}`} className="w-full select-none object-cover" draggable={false} />
+              <div className="absolute bottom-0 left-0 right-0 py-1 text-center text-xs font-bold text-cream" style={{ background: "rgba(14,28,48,0.7)" }}>
+                {idx + 1}. pozicija
               </div>
-            )}
-          </div>
-        ))}
+              {isSelected && (
+                <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(230,57,70,0.18)" }}>
+                  <span className="rounded-full px-3 py-1 text-xs font-bold text-cream" style={{ background: "var(--red)" }}>Odabrano</span>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
-
-      <button
-        onClick={() => onSubmit({ order: items.map((i) => i.originalIndex) })}
-        disabled={disabled}
-        className="rounded-full bg-[hsl(280,100%,70%)] py-2.5 font-semibold text-black transition hover:opacity-90 disabled:opacity-40"
-      >
+      <button onClick={() => onSubmit({ order: items.map((i) => i.originalIndex) })} disabled={disabled} className="btn-primary w-full py-3">
         Potvrdi redoslijed
       </button>
     </div>

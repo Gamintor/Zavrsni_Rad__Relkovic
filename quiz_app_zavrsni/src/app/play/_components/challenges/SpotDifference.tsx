@@ -50,16 +50,16 @@ export default function SpotDifference({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-white/60">
+      <p className="text-sm" style={{ color: "var(--text-mut)" }}>
         Klikni na razlike između dvije slike · Oznake su prikazane na obje slike
       </p>
 
       <div className="grid grid-cols-2 gap-3">
         {images.map(({ label, url, ref }) => (
           <div key={label} className="flex flex-col gap-1">
-            <span className="text-xs text-white/40">{label}</span>
+            <span className="text-xs" style={{ color: "var(--text-mut)" }}>{label}</span>
             <div
-              className="relative cursor-crosshair overflow-hidden rounded-lg"
+              className="relative cursor-crosshair overflow-hidden rounded-[var(--r-md)]"
               onClick={(e) => handleImageClick(e, ref)}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -67,10 +67,9 @@ export default function SpotDifference({
                 ref={ref}
                 src={url ?? ""}
                 alt={label}
-                className="w-full select-none rounded-lg"
+                className="w-full select-none rounded-[var(--r-md)]"
                 draggable={false}
               />
-              {/* Oznake na slici — iste koordinate na obje slike */}
               {markers.map((m) => (
                 <div
                   key={m.id}
@@ -81,7 +80,10 @@ export default function SpotDifference({
                     transform: "translate(-50%, -50%)",
                   }}
                 >
-                  <div className="h-6 w-6 rounded-full border-2 border-white bg-[hsl(280,100%,70%)]/80" />
+                  <div
+                    className="h-6 w-6 rounded-full border-2"
+                    style={{ borderColor: "var(--cream)", background: "rgba(230,57,70,0.7)" }}
+                  />
                 </div>
               ))}
             </div>
@@ -89,7 +91,6 @@ export default function SpotDifference({
         ))}
       </div>
 
-      {/* Lista oznaka s mogućnošću brisanja */}
       {markers.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {markers.map((m, i) => (
@@ -98,9 +99,12 @@ export default function SpotDifference({
               type="button"
               onClick={() => !disabled && removeMarker(m.id)}
               disabled={disabled}
-              className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs transition hover:bg-red-500/30 disabled:cursor-default"
+              className="flex items-center gap-1 rounded-full px-3 py-1 text-xs transition disabled:cursor-default"
+              style={{ background: "var(--glass-strong)", border: "1px solid var(--border-soft)", color: "var(--cream)" }}
+              onMouseOver={(e) => (e.currentTarget.style.background = "rgba(230,57,70,0.2)")}
+              onMouseOut={(e) => (e.currentTarget.style.background = "var(--glass-strong)")}
             >
-              <span className="h-2 w-2 rounded-full bg-[hsl(280,100%,70%)]" />
+              <span className="h-2 w-2 rounded-full" style={{ background: "var(--red)" }} />
               Razlika {i + 1} ✕
             </button>
           ))}
@@ -112,7 +116,7 @@ export default function SpotDifference({
           onSubmit({ found: markers.map(({ x, y }) => ({ x, y })) })
         }
         disabled={disabled}
-        className="rounded-full bg-[hsl(280,100%,70%)] py-2.5 font-semibold text-black transition hover:opacity-90 disabled:opacity-40"
+        className="btn-primary w-full py-3"
       >
         Potvrdi ({markers.length} razlik{markers.length === 1 ? "a" : "e"} označeno)
       </button>

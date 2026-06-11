@@ -8,7 +8,9 @@ interface TimerProps {
   paused?: boolean;
 }
 
-// Remountan s key={challenge.id} da se timer resetira za svaki novi izazov
+const RADIUS = 20;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
 export default function Timer({ timeLimitSec, onExpire, paused = false }: TimerProps) {
   const [remaining, setRemaining] = useState(timeLimitSec);
   const firedRef = useRef(false);
@@ -37,22 +39,50 @@ export default function Timer({ timeLimitSec, onExpire, paused = false }: TimerP
   }, [timeLimitSec, paused]);
 
   const ratio = remaining / timeLimitSec;
-  const color =
-    ratio > 0.5 ? "text-green-400" : ratio > 0.25 ? "text-yellow-400" : "text-red-400";
-  const barColor =
-    ratio > 0.5 ? "bg-green-400" : ratio > 0.25 ? "bg-yellow-400" : "bg-red-400";
+  const isLow = remaining <= 5;
+  const strokeColor = isLow ? "var(--red)" : "var(--powder)";
+  const dashOffset = CIRCUMFERENCE * (1 - ratio);
 
   return (
-    <div className="flex items-center gap-3">
-      <span className={`w-12 text-right text-xl font-bold tabular-nums ${color}`}>
-        {remaining}s
-      </span>
-      <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
-        <div
-          className={`h-full rounded-full transition-all duration-1000 ${barColor}`}
-          style={{ width: `${ratio * 100}%` }}
-        />
-      </div>
-    </div>
+    <svg
+      width="48"
+      height="48"
+      viewBox="0 0 48 48"
+      aria-label={`Preostalo ${remaining} sekundi`}
+      className="shrink-0"
+    >
+      {/* Track */}
+      <circle
+        cx="24" cy="24" r={RADIUS}
+        fill="none"
+        stroke="rgba(168,218,220,0.15)"
+        strokeWidth="4"
+      />
+      {/* Progress */}
+      <circle
+        cx="24" cy="24" r={RADIUS}
+        fill="none"
+        stroke={strokeColor}
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeDasharray={CIRCUMFERENCE}
+        strokeDashoffset={dashOffset}
+        transform="rotate(-90 24 24)"
+        style={{ transition: "stroke-dashoffset 0.95s linear, stroke 0.3s" }}
+      />
+      {/* Broj */}
+      <text
+        x="24" y="25"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fill={isLow ? "var(--red)" : "var(--cream)"}
+        fontSize="13"
+        fontWeight="800"
+        fontFamily="inherit"
+        style={{ transition: "fill 0.3s" }}
+      >
+        {remaining}
+      </text>
+    </svg>
   );
 }

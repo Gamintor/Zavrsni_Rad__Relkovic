@@ -10,7 +10,7 @@ interface Props {
   disabled: boolean;
 }
 
-const TILE_PX = 100; // visina/širina jedne pločice u pikselima
+const TILE_PX = 100;
 
 function shuffle(arr: number[]): number[] {
   const a = [...arr];
@@ -54,7 +54,6 @@ export default function Puzzle({ mediaUrl, rows, cols, onSubmit, disabled }: Pro
       return;
     }
 
-    // Zamijeni pločice
     const newTiles = [...tiles];
     const tmp = newTiles[selectedPos]!;
     newTiles[selectedPos] = newTiles[pos]!;
@@ -62,7 +61,6 @@ export default function Puzzle({ mediaUrl, rows, cols, onSubmit, disabled }: Pro
     setTiles(newTiles);
     setSelectedPos(null);
 
-    // Provjeri je li slagalica riješena
     if (newTiles.every((id, i) => id === i)) {
       onSubmit({ solved: true });
     }
@@ -70,13 +68,13 @@ export default function Puzzle({ mediaUrl, rows, cols, onSubmit, disabled }: Pro
 
   if (!mediaUrl) {
     return (
-      <div className="rounded-xl border border-white/20 p-6 text-center text-sm text-white/50">
+      <div className="rounded-[var(--r-md)] p-6 text-center text-sm" style={{ border: "1px solid var(--border-soft)", color: "var(--text-mut)" }}>
         Slika nije dostupna za ovu slagalicu.
         <br />
         <button
           onClick={() => onSubmit({ solved: false })}
           disabled={disabled}
-          className="mt-3 rounded-full bg-white/10 px-6 py-2 text-sm transition hover:bg-white/20 disabled:opacity-40"
+          className="btn-secondary mt-3 px-6 py-2 text-sm"
         >
           Preskoči
         </button>
@@ -90,19 +88,20 @@ export default function Puzzle({ mediaUrl, rows, cols, onSubmit, disabled }: Pro
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <p className="text-sm text-white/60">
+      <p className="text-sm" style={{ color: "var(--text-mut)" }}>
         Klikni pločicu pa klikni na ciljnu poziciju da ih zamijeniš
       </p>
 
-      {/* Grid slagalice */}
       <div
-        className="overflow-hidden rounded-xl border-2 border-white/20"
+        className="overflow-hidden rounded-[var(--r-md)]"
         style={{
           display: "grid",
           gridTemplateColumns: `repeat(${cols}, ${TILE_PX}px)`,
           gridTemplateRows: `repeat(${rows}, ${TILE_PX}px)`,
           width: `${totalW}px`,
           height: `${totalH}px`,
+          border: `2px solid ${isSolved ? "var(--green)" : "var(--border-soft)"}`,
+          transition: "border-color 0.3s",
         }}
       >
         {tiles.map((tileId, pos) => {
@@ -116,13 +115,7 @@ export default function Puzzle({ mediaUrl, rows, cols, onSubmit, disabled }: Pro
               key={pos}
               onClick={() => handleTileClick(pos)}
               title={`Pločica ${tileId + 1} na poziciji ${pos + 1}`}
-              className={`relative cursor-pointer select-none border transition-all duration-150 ${
-                isSelected
-                  ? "border-[hsl(280,100%,70%)] brightness-125 z-10"
-                  : isSolved
-                    ? "border-green-500/40"
-                    : "border-white/10 hover:border-white/30"
-              }`}
+              className="relative cursor-pointer select-none transition-all duration-150"
               style={{
                 width: `${TILE_PX}px`,
                 height: `${TILE_PX}px`,
@@ -130,18 +123,22 @@ export default function Puzzle({ mediaUrl, rows, cols, onSubmit, disabled }: Pro
                 backgroundSize: `${totalW}px ${totalH}px`,
                 backgroundPosition: `-${tileCol * TILE_PX}px -${tileRow * TILE_PX}px`,
                 backgroundRepeat: "no-repeat",
+                outline: isSelected
+                  ? "2px solid var(--red)"
+                  : isSolved
+                    ? "1px solid rgba(42,157,143,0.4)"
+                    : "1px solid rgba(241,250,238,0.08)",
+                zIndex: isSelected ? 10 : "auto",
+                filter: isSelected ? "brightness(1.25)" : "none",
               }}
             >
-              {/* Overlay za odabranu pločicu */}
               {isSelected && (
-                <div className="absolute inset-0 bg-[hsl(280,100%,70%)]/30" />
+                <div className="absolute inset-0" style={{ background: "rgba(230,57,70,0.25)" }} />
               )}
-              {/* Zeleni tint kad je na ispravnoj poziciji */}
               {isCorrect && !isSelected && (
-                <div className="absolute inset-0 bg-green-500/10" />
+                <div className="absolute inset-0" style={{ background: "rgba(42,157,143,0.1)" }} />
               )}
-              {/* Mali broj pločice (debug aid) */}
-              <span className="absolute bottom-0.5 right-1 text-[9px] text-white/30 select-none">
+              <span className="absolute bottom-0.5 right-1 select-none text-[9px]" style={{ color: "rgba(241,250,238,0.25)" }}>
                 {tileId + 1}
               </span>
             </div>
@@ -150,19 +147,18 @@ export default function Puzzle({ mediaUrl, rows, cols, onSubmit, disabled }: Pro
       </div>
 
       {isSolved && (
-        <p className="text-sm font-semibold text-green-400">✓ Slagalica riješena!</p>
+        <p className="text-sm font-semibold" style={{ color: "var(--green)" }}>✓ Slagalica riješena!</p>
       )}
 
-      {/* Pregled rješenja minijatura */}
       <details className="text-center">
-        <summary className="cursor-pointer text-xs text-white/30 hover:text-white/50">
+        <summary className="cursor-pointer text-xs transition" style={{ color: "var(--text-mut)" }}>
           Pogledaj cijelu sliku
         </summary>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={mediaUrl}
           alt="Cijela slika"
-          className="mt-2 max-h-32 rounded-lg object-contain opacity-50"
+          className="mt-2 max-h-32 rounded-[var(--r-md)] object-contain opacity-50"
         />
       </details>
     </div>

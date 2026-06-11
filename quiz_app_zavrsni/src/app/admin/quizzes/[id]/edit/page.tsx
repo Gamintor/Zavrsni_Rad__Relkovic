@@ -16,17 +16,13 @@ const TYPE_SHORT: Record<ChallengeType, string> = {
   SEQUENCE: "SQ",
 };
 
-const DIFF_COLORS: Record<Difficulty, string> = {
-  EASY: "text-green-300",
-  MEDIUM: "text-yellow-300",
-  HARD: "text-red-300",
+const DIFF_COLOR: Record<Difficulty, string> = {
+  EASY: "var(--green)",
+  MEDIUM: "#e6c839",
+  HARD: "var(--red)",
 };
 
-export default function EditQuizPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function EditQuizPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { data: quiz, isLoading, refetch } = api.content.quiz.getById.useQuery({ id });
   const { data: categories } = api.content.category.list.useQuery();
@@ -38,7 +34,6 @@ export default function EditQuizPage({
   const [challengeSearch, setChallengeSearch] = useState("");
   const [infoSaved, setInfoSaved] = useState(false);
 
-  // Inicijalizira lokalni state kad podaci stignu
   useEffect(() => {
     if (quiz) {
       setTitle(quiz.title);
@@ -47,41 +42,28 @@ export default function EditQuizPage({
     }
   }, [quiz?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  function toggleCategory(id: string) {
+  function toggleCategory(catId: string) {
     setCategoryIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+      prev.includes(catId) ? prev.filter((x) => x !== catId) : [...prev, catId],
     );
   }
 
   const updateQuiz = api.content.quiz.update.useMutation({
-    onSuccess: () => {
-      void refetch();
-      setInfoSaved(true);
-      setTimeout(() => setInfoSaved(false), 2000);
-    },
+    onSuccess: () => { void refetch(); setInfoSaved(true); setTimeout(() => setInfoSaved(false), 2000); },
   });
-  const togglePublish = api.content.quiz.togglePublish.useMutation({
-    onSuccess: () => void refetch(),
-  });
-  const addChallenge = api.content.quiz.addChallenge.useMutation({
-    onSuccess: () => void refetch(),
-  });
-  const removeChallenge = api.content.quiz.removeChallenge.useMutation({
-    onSuccess: () => void refetch(),
-  });
-  const reorder = api.content.quiz.reorderChallenges.useMutation({
-    onSuccess: () => void refetch(),
-  });
+  const togglePublish = api.content.quiz.togglePublish.useMutation({ onSuccess: () => void refetch() });
+  const addChallenge = api.content.quiz.addChallenge.useMutation({ onSuccess: () => void refetch() });
+  const removeChallenge = api.content.quiz.removeChallenge.useMutation({ onSuccess: () => void refetch() });
+  const reorder = api.content.quiz.reorderChallenges.useMutation({ onSuccess: () => void refetch() });
 
-  if (isLoading) return <p className="text-white/50">Učitavanje...</p>;
-  if (!quiz) return <p className="text-red-400">Kviz nije pronađen.</p>;
+  if (isLoading) return <p style={{ color: "var(--text-mut)" }}>Učitavanje...</p>;
+  if (!quiz) return <p style={{ color: "var(--red)" }}>Kviz nije pronađen.</p>;
 
   const addedIds = new Set(quiz.quizChallenges.map((qc) => qc.challengeId));
   const filteredChallenges = allChallenges?.filter(
     (ch) =>
       !addedIds.has(ch.id) &&
-      (challengeSearch === "" ||
-        ch.prompt.toLowerCase().includes(challengeSearch.toLowerCase())),
+      (challengeSearch === "" || ch.prompt.toLowerCase().includes(challengeSearch.toLowerCase())),
   );
 
   function move(index: number, direction: -1 | 1) {
@@ -89,7 +71,6 @@ export default function EditQuizPage({
     const items = [...quiz.quizChallenges];
     const target = index + direction;
     if (target < 0 || target >= items.length) return;
-    // Swap orders
     const newOrder = items.map((qc, i) => ({
       challengeId: qc.challengeId,
       order: i === index ? target : i === target ? index : i,
@@ -101,44 +82,34 @@ export default function EditQuizPage({
     <div className="space-y-8">
       {/* Header */}
       <div className="flex items-start justify-between">
-        <h1 className="text-3xl font-bold">{quiz.title}</h1>
+        <h1 className="text-3xl font-bold" style={{ color: "var(--cream)" }}>{quiz.title}</h1>
         <button
           onClick={() => togglePublish.mutate({ id })}
-          className={`rounded-full px-5 py-2 text-sm font-semibold transition hover:opacity-80 ${
+          className="rounded-full px-5 py-2 text-sm font-semibold transition hover:opacity-80"
+          style={
             quiz.isPublished
-              ? "bg-green-500/20 text-green-300"
-              : "bg-white/10 text-white/50"
-          }`}
+              ? { background: "rgba(42,157,143,0.2)", color: "var(--green)" }
+              : { background: "var(--glass-strong)", color: "var(--text-mut)" }
+          }
         >
           {quiz.isPublished ? "Objavljeno" : "Objavi"}
         </button>
       </div>
 
       {/* Osnovne informacije */}
-      <section className="rounded-xl bg-white/10 p-6">
-        <h2 className="mb-4 font-semibold">Informacije o kvizu</h2>
+      <section className="glass rounded-[var(--r-card)] p-6">
+        <h2 className="mb-4 font-semibold" style={{ color: "var(--cream)" }}>Informacije o kvizu</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block sm:col-span-2">
-            <span className="mb-1 block text-sm text-white/70">Naziv</span>
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
-            />
+            <span className="mb-1 block text-sm" style={{ color: "var(--text-mut)" }}>Naziv</span>
+            <input value={title} onChange={(e) => setTitle(e.target.value)} className="input-field" />
           </label>
           <label className="block sm:col-span-2">
-            <span className="mb-1 block text-sm text-white/70">Opis</span>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={2}
-              className="w-full rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
-            />
+            <span className="mb-1 block text-sm" style={{ color: "var(--text-mut)" }}>Opis</span>
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="input-field" />
           </label>
           <div className="block sm:col-span-2">
-            <span className="mb-2 block text-sm text-white/70">
-              Kategorije (više je moguće)
-            </span>
+            <span className="mb-2 block text-sm" style={{ color: "var(--text-mut)" }}>Kategorije (više je moguće)</span>
             {categories && categories.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {categories.map((c) => {
@@ -148,11 +119,12 @@ export default function EditQuizPage({
                       key={c.id}
                       type="button"
                       onClick={() => toggleCategory(c.id)}
-                      className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                      className="pill text-xs font-semibold transition"
+                      style={
                         checked
-                          ? "bg-[hsl(280,100%,70%)] text-black"
-                          : "bg-white/10 text-white/70 hover:bg-white/20"
-                      }`}
+                          ? { background: "var(--powder)", color: "var(--navy)" }
+                          : { background: "var(--glass-strong)", color: "var(--text-mut)", border: "1px solid var(--border-soft)" }
+                      }
                     >
                       {c.name}
                     </button>
@@ -160,94 +132,64 @@ export default function EditQuizPage({
                 })}
               </div>
             ) : (
-              <p className="text-sm text-white/40">Nema kategorija.</p>
+              <p className="text-sm" style={{ color: "var(--text-mut)" }}>Nema kategorija.</p>
             )}
           </div>
         </div>
         <div className="mt-4 flex items-center gap-3">
           <button
-            onClick={() =>
-              updateQuiz.mutate({
-                id,
-                title,
-                description: description || null,
-                categoryIds,
-              })
-            }
+            onClick={() => updateQuiz.mutate({ id, title, description: description || null, categoryIds })}
             disabled={updateQuiz.isPending}
-            className="rounded-full bg-[hsl(280,100%,70%)] px-6 py-2 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-50"
+            className="btn-primary px-6 py-2 text-sm disabled:opacity-50"
           >
             Spremi
           </button>
-          {infoSaved && (
-            <span className="text-sm text-green-400">Spremljeno ✓</span>
-          )}
+          {infoSaved && <span className="text-sm font-semibold" style={{ color: "var(--green)" }}>Spremljeno ✓</span>}
         </div>
       </section>
 
       {/* Izazovi u kvizu */}
       <section>
-        <h2 className="mb-3 font-semibold">
+        <h2 className="mb-3 font-semibold" style={{ color: "var(--cream)" }}>
           Izazovi u kvizu ({quiz.quizChallenges.length})
         </h2>
         {quiz.quizChallenges.length === 0 ? (
-          <p className="text-sm text-white/50">
-            Kviz nema izazova. Dodajte ih iz liste ispod.
-          </p>
+          <p className="text-sm" style={{ color: "var(--text-mut)" }}>Kviz nema izazova. Dodajte ih iz liste ispod.</p>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-white/10">
+          <div className="glass overflow-hidden rounded-[var(--r-card)]">
             <table className="w-full text-sm">
-              <thead className="bg-white/5">
-                <tr>
+              <thead>
+                <tr style={{ background: "var(--glass-strong)" }}>
                   {["#", "Tip", "Pitanje", "Bodovi", "Limit", ""].map((h) => (
-                    <th key={h} className="p-3 text-left font-medium text-white/70">
-                      {h}
-                    </th>
+                    <th key={h} className="p-3 text-left font-medium" style={{ color: "var(--text-mut)" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {quiz.quizChallenges.map((qc, i) => (
-                  <tr
-                    key={qc.challengeId}
-                    className="border-t border-white/10 hover:bg-white/5"
-                  >
-                    <td className="p-3 text-white/40">{i + 1}</td>
+                  <tr key={qc.challengeId} className="transition" style={{ borderTop: "1px solid var(--border-soft)" }}>
+                    <td className="p-3" style={{ color: "var(--text-mut)" }}>{i + 1}</td>
                     <td className="p-3">
-                      <span className="rounded bg-white/10 px-2 py-0.5 font-mono text-xs text-white/60">
+                      <span className="rounded-full px-2 py-0.5 font-mono text-xs" style={{ background: "var(--glass-strong)", color: "var(--powder)" }}>
                         {TYPE_SHORT[qc.challenge.type]}
                       </span>
                     </td>
                     <td className="max-w-xs p-3">
-                      <span className="line-clamp-1">{qc.challenge.prompt}</span>
+                      <span className="line-clamp-1" style={{ color: "var(--cream)" }}>{qc.challenge.prompt}</span>
                     </td>
-                    <td className={`p-3 ${DIFF_COLORS[qc.challenge.difficulty]}`}>
+                    <td className="p-3 font-semibold" style={{ color: DIFF_COLOR[qc.challenge.difficulty] }}>
                       {qc.challenge.basePoints}
                     </td>
-                    <td className="p-3 text-white/60">{qc.challenge.timeLimitSec}s</td>
+                    <td className="p-3" style={{ color: "var(--text-mut)" }}>{qc.challenge.timeLimitSec}s</td>
                     <td className="p-3 text-right">
+                      <button disabled={i === 0} onClick={() => move(i, -1)} className="mr-1 rounded-[var(--r-sm)] px-2 py-0.5 text-xs disabled:opacity-30 transition" style={{ color: "var(--cream)" }} onMouseOver={(e) => (e.currentTarget.style.background = "var(--glass-strong)")} onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}>↑</button>
+                      <button disabled={i === quiz.quizChallenges.length - 1} onClick={() => move(i, 1)} className="mr-3 rounded-[var(--r-sm)] px-2 py-0.5 text-xs disabled:opacity-30 transition" style={{ color: "var(--cream)" }} onMouseOver={(e) => (e.currentTarget.style.background = "var(--glass-strong)")} onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}>↓</button>
                       <button
-                        disabled={i === 0}
-                        onClick={() => move(i, -1)}
-                        className="mr-1 rounded px-2 py-0.5 text-xs disabled:opacity-30 hover:bg-white/10"
-                      >
-                        ↑
-                      </button>
-                      <button
-                        disabled={i === quiz.quizChallenges.length - 1}
-                        onClick={() => move(i, 1)}
-                        className="mr-3 rounded px-2 py-0.5 text-xs disabled:opacity-30 hover:bg-white/10"
-                      >
-                        ↓
-                      </button>
-                      <button
-                        onClick={() =>
-                          removeChallenge.mutate({
-                            quizId: id,
-                            challengeId: qc.challengeId,
-                          })
-                        }
-                        className="rounded px-3 py-1 text-xs text-red-400 hover:bg-red-400/10"
+                        onClick={() => removeChallenge.mutate({ quizId: id, challengeId: qc.challengeId })}
+                        className="rounded-[var(--r-tile)] px-3 py-1 text-xs transition"
+                        style={{ color: "var(--red)" }}
+                        onMouseOver={(e) => (e.currentTarget.style.background = "rgba(230,57,70,0.1)")}
+                        onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}
                       >
                         Ukloni
                       </button>
@@ -262,45 +204,37 @@ export default function EditQuizPage({
 
       {/* Dodaj izazove */}
       <section>
-        <h2 className="mb-3 font-semibold">Dodaj izazove</h2>
+        <h2 className="mb-3 font-semibold" style={{ color: "var(--cream)" }}>Dodaj izazove</h2>
         <input
           value={challengeSearch}
           onChange={(e) => setChallengeSearch(e.target.value)}
           placeholder="Pretraži izazove..."
-          className="mb-3 w-full max-w-sm rounded bg-white/10 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-[hsl(280,100%,70%)]"
+          className="input-field mb-3 max-w-sm"
         />
         {filteredChallenges && filteredChallenges.length === 0 && (
-          <p className="text-sm text-white/50">
+          <p className="text-sm" style={{ color: "var(--text-mut)" }}>
             {addedIds.size > 0 && allChallenges && addedIds.size === allChallenges.length
               ? "Svi dostupni izazovi su već dodani."
               : "Nema izazova koji odgovaraju pretrazi."}
           </p>
         )}
         {filteredChallenges && filteredChallenges.length > 0 && (
-          <div className="overflow-hidden rounded-xl border border-white/10">
+          <div className="glass overflow-hidden rounded-[var(--r-card)]">
             <table className="w-full text-sm">
               <tbody>
-                {filteredChallenges.map((ch) => (
-                  <tr
-                    key={ch.id}
-                    className="border-t border-white/10 first:border-t-0 hover:bg-white/5"
-                  >
+                {filteredChallenges.map((ch, i) => (
+                  <tr key={ch.id} className="transition" style={{ borderTop: i === 0 ? "none" : "1px solid var(--border-soft)" }}>
                     <td className="p-3">
-                      <span className="rounded bg-white/10 px-2 py-0.5 font-mono text-xs text-white/60">
+                      <span className="rounded-full px-2 py-0.5 font-mono text-xs" style={{ background: "var(--glass-strong)", color: "var(--powder)" }}>
                         {TYPE_SHORT[ch.type]}
                       </span>
                     </td>
-                    <td className="p-3 text-white/90">{ch.prompt}</td>
-                    <td className="p-3 text-white/50">{ch.category.name}</td>
+                    <td className="p-3" style={{ color: "var(--cream)" }}>{ch.prompt}</td>
+                    <td className="p-3" style={{ color: "var(--text-mut)" }}>{ch.category.name}</td>
                     <td className="p-3 text-right">
                       <button
-                        onClick={() =>
-                          addChallenge.mutate({
-                            quizId: id,
-                            challengeId: ch.id,
-                          })
-                        }
-                        className="rounded-full bg-white/10 px-4 py-1 text-xs font-semibold transition hover:bg-white/20"
+                        onClick={() => addChallenge.mutate({ quizId: id, challengeId: ch.id })}
+                        className="btn-secondary px-4 py-1 text-xs font-semibold"
                       >
                         + Dodaj
                       </button>
