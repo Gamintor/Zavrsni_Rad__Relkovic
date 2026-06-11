@@ -5,6 +5,7 @@ import { Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { SocketProvider } from "./_components/SocketProvider";
+import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
   title: "Kviz Arena",
@@ -23,9 +24,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable}`}>
       <body>
-        <TRPCReactProvider>
-          <SocketProvider>{children}</SocketProvider>
-        </TRPCReactProvider>
+        <SessionProvider>
+          <TRPCReactProvider>
+            <SocketProvider>{children}</SocketProvider>
+          </TRPCReactProvider>
+        </SessionProvider>
       </body>
     </html>
   );
